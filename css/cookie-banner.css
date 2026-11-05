@@ -1,0 +1,131 @@
+/* The consent banner — Figma "Toast", node 1799:7330.
+ *
+ * Frame 389x46. Padding left 16, right 2, contents vertically centred.
+ * Regesto Grotesk 14/1.2 throughout, white fill, 1px black border, pill radius.
+ * "COOKIES", "NOT OK" and the OK chip's label are underlined; "WE COLLECT" is
+ * not. OK is a filled black chip, 66x41, radius 61.
+ *
+ * Loaded on EVERY page, last in the cascade, so this file is the single source
+ * of truth. It has to override the older treatment index.html inherits from the
+ * Webflow stylesheet plus the WV-22 reposition in hero.css, AND stand alone on
+ * contact.html / article-wip.html, which load no Webflow CSS and so have no
+ * .text-small or .is-link to build on.
+ *
+ * Sizing stays in rem on purpose: the site's root font-size tracks the viewport
+ * and equals 16px at 1440, which is the canvas this design is drawn on — so rem
+ * keeps the banner scaling with the rest of the type instead of freezing.
+ */
+.cookie-block {
+  z-index: 99;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 24.3125rem;                    /* 389px — the Figma frame */
+  height: 2.875rem;                     /* 46px — fixed, not hugging */
+  max-width: calc(100vw - 3rem);
+  min-width: 0;
+  /* Figma measures its insets from the frame edge and the 1px stroke sits
+     inside them, so each side gives the border its pixel back. */
+  padding: 0 calc(.125rem - 1px) 0 calc(1rem - 1px);   /* 16 left, 2 right */
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 9999px;
+  white-space: nowrap;
+  position: fixed;
+  inset: auto 0 1.4375rem;              /* bottom-centred */
+  margin-inline: auto;
+}
+
+.cookie-block .text-small,
+.cookie-block .is-link {
+  /* The Webflow stylesheet makes .text-small a flex container. That turns the
+     label's text node and its COOKIES link into two flex items and silently
+     eats the space between them — "WE COLLECTCOOKIES". Inline flow. */
+  display: block;
+  color: #000;
+  margin: 0;
+  padding: 0;
+  font-family: Regestogrotesk, Arial, sans-serif;
+  font-size: .875rem;                   /* 14px */
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* COOKIES links to the policy; NOT OK stays plain underlined text. */
+.cookie-block .cb-em,
+.cookie-block .is-link {
+  text-decoration: underline;
+  -webkit-text-decoration: underline;
+  text-underline-position: from-font;
+}
+.cookie-block .cb-em { color: inherit; }
+.cookie-block .cb-em:hover,
+.cookie-block .is-link[fs-cc="deny"]:hover { opacity: .6; }
+
+/* NOT OK is 49x17 of text against a 66x41 chip — about a third of the area to
+   hit, and under the 44px minimum touch target. The padding grows the hit box
+   to the chip's height and the negative margin gives the space back, so the
+   layout and the look are unchanged: this buys a bigger target, nothing else. */
+.cookie-block .is-link[fs-cc="deny"] {
+  padding-block: .75rem;
+  margin-block: -.75rem;
+}
+
+/* OK — the filled chip. Styled on the anchor itself rather than wrapping it in
+   the Figma's extra frame, so Finsweet keeps binding to the same element. */
+.cookie-block .is-link[fs-cc="allow"] {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.125rem;                      /* 66px */
+  height: 2.5625rem;                    /* 41px */
+  padding: 0;
+  background: #000;
+  color: #fff;
+  border-radius: 3.8125rem;             /* 61px */
+}
+.cookie-block .is-link[fs-cc="allow"]:hover { opacity: .85; }
+
+/* WV-70 — "wide and small", and it was both.
+ *
+ * The note at the top of this file says sizing stays in rem so the banner
+ * scales with the type. That reasoning holds down to about a tablet and then
+ * inverts: the root font-size is 1.111vw, so on a 375px phone the root is
+ * 4.17px and every dimension here collapses with it — the 46px bar rendered
+ * 12px tall, 14px type rendered 3.6px, and the 1rem inset put it four pixels
+ * from each edge. `width: auto` with BOTH left and right pinned then stretched
+ * what was left of it edge to edge.
+ *
+ * A fixed piece of chrome is not body copy: it should be the size it was drawn
+ * at whatever the viewport. Everything below is px on purpose, and the toast
+ * hugs its content and centres rather than spanning the screen. */
+@media (max-width: 767px) {
+  .cookie-block {
+    width: fit-content;
+    max-width: calc(100vw - 32px);
+    margin-inline: auto;
+    /* Clear of the home indicator on a notched phone. */
+    inset: auto 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    height: 46px;
+    padding: 0 3px 0 16px;
+    gap: 12px;
+  }
+  .cookie-block .text-small,
+  .cookie-block .is-link { font-size: 13px; }
+  .cookie-block .is-link[fs-cc="allow"] {
+    width: 66px;
+    height: 40px;
+    border-radius: 61px;
+  }
+  /* Same trick as the desktop rule: grow the hit box to the chip's height
+     without moving anything, so NOT OK is a real touch target. */
+  .cookie-block .is-link[fs-cc="deny"] {
+    padding-block: 13px;
+    margin-block: -13px;
+  }
+}

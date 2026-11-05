@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>Samenwerken — FilmForge</title>
+<link href="./" rel="canonical">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vertel wat je wilt bereiken. Richtprijs binnen 1 werkdag. FilmForge, Voorthuizen.">
+  <meta property="og:title" content="Samenwerken — FilmForge">
+  <meta property="og:description" content="Vertel wat je wilt bereiken — wij openen de case.">
+  <link rel="icon" type="image/svg+xml" href="../images/ff-favicon.svg" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/svg+xml" href="../images/ff-favicon.svg" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="32x32" href="../images/ff-icon-512.png">
+  <link href="../css/tokens.css" rel="stylesheet">
+  <link href="../css/contact.css" rel="stylesheet">
+  <!-- WV-43: the same black sheet the home page opens, instead of this page's
+       own <details> disclosure. -->
+  <link href="../css/mobile-menu.css" rel="stylesheet">
+  <link href="../css/cookie-banner.css" rel="stylesheet" type="text/css">
+<!-- dn page transition -->
+<style id="dn-transition-css">#dn-transition{position:fixed;inset:0;z-index:2147483000;pointer-events:none;visibility:hidden}html.dn-anim #dn-transition{visibility:visible;background:#000}#dn-transition canvas{position:absolute;inset:0;width:100%;height:100%;display:block}</style>
+<script>document.documentElement.classList.add("dn-anim");setTimeout(function(){var h=document.documentElement;if(!h.classList.contains("dn-revealed"))h.classList.remove("dn-anim");},2500);</script>
+</head>
+
+<body class="ct-body">
+    <div fs-cc="banner" class="cookie-block">
+      <div class="text-small is-white-upper">WE VERZAMELEN <a href="../#cookie" class="cb-em">COOKIES</a></div>
+      <a fs-cc="deny" href="#" class="text-small is-white-upper is-link">NIET OK</a>
+      <a fs-cc="allow" href="#" class="text-small is-white-upper is-link">OK</a>
+    </div>
+<div id="dn-transition" aria-hidden="true"><canvas class="dn-ink-canvas"></canvas></div>
+
+<main class="ct">
+  <!-- Nav — same left column as the home page; the right rail swaps
+       "work with us / opening month" for close + fills-anyway (Figma 1690-7380). -->
+  <nav class="ct-nav" aria-label="Primary">
+    <!-- Open on desktop (the summary is hidden there); contact.js closes it on
+         small screens, where [Menu] no longer discloses this list at all — it
+         opens the site's mobile drawer (../js/mobile-menu.js), same as the home
+         page. The <details> stays because it is what renders the columns
+         without JS on desktop. -->
+    <details class="ct-menu" open>
+      <summary class="ct-menu-toggle">[Menu]</summary>
+      <div class="ct-nav-cols">
+      <ul>
+        <li><a href="../#cases-section">Uitgelicht werk</a></li>
+        <li><a href="../#about-section">Over ons</a></li>
+        <li><a href="../#insight-section">Kennis</a></li>
+      </ul>
+      <ul aria-hidden="true">
+        <li class="ct-annot">(5)</li>
+        <li class="ct-annot">(<svg class="ct-sf" viewBox="0 0 20 13"><path fill="currentColor" d="M9.63867 12.3184C8.18945 12.3184 6.8724 12.1999 5.6875 11.9629C4.50716 11.7259 3.49316 11.3932 2.64551 10.9648C1.79785 10.5365 1.14388 10.0329 0.683594 9.4541C0.227865 8.87077 0 8.23503 0 7.54688C0 7.06836 0.116211 6.61491 0.348633 6.18652C0.581055 5.75814 0.916016 5.36849 1.35352 5.01758C1.79557 4.66211 2.32878 4.35677 2.95312 4.10156C3.58203 3.84635 4.29297 3.65723 5.08594 3.53418C5.34115 2.44499 5.85384 1.58366 6.62402 0.950195C7.39876 0.316732 8.40365 0 9.63867 0C10.8783 0 11.8809 0.316732 12.6465 0.950195C13.4167 1.58366 13.9316 2.44499 14.1914 3.53418C14.9844 3.65723 15.693 3.84635 16.3174 4.10156C16.9463 4.35677 17.4795 4.66211 17.917 5.01758C18.359 5.36849 18.6963 5.75814 18.9287 6.18652C19.1657 6.61491 19.2842 7.06836 19.2842 7.54688C19.2842 8.23503 19.054 8.87077 18.5938 9.4541C18.138 10.0329 17.4863 10.5365 16.6387 10.9648C15.791 11.3932 14.7747 11.7259 13.5898 11.9629C12.4095 12.1999 11.0924 12.3184 9.63867 12.3184ZM9.625 8.55859C10.6322 8.55859 11.5322 8.4401 12.3252 8.20312C13.1227 7.96615 13.7539 7.6403 14.2188 7.22559C14.2734 6.87467 14.3031 6.48958 14.3076 6.07031C14.3122 5.65104 14.2939 5.27051 14.2529 4.92871C13.8838 5.23405 13.4486 5.49382 12.9473 5.70801C12.4505 5.9222 11.9173 6.08854 11.3477 6.20703C10.7826 6.32096 10.2083 6.37793 9.625 6.37793C9.04622 6.37793 8.47201 6.32096 7.90234 6.20703C7.33724 6.08854 6.80404 5.9222 6.30273 5.70801C5.80599 5.49382 5.37305 5.23405 5.00391 4.92871C4.96289 5.27051 4.94466 5.65104 4.94922 6.07031C4.95833 6.48958 4.98568 6.87467 5.03125 7.22559C5.50065 7.6403 6.13411 7.96615 6.93164 8.20312C7.72917 8.4401 8.62695 8.55859 9.625 8.55859Z"/></svg>)</li>
+        <li class="ct-annot">(0)</li>
+      </ul>
+      </div>
+    </details>
+
+    <p class="ct-lede">Vertel wat je wilt bereiken — wij openen de case.</p>
+
+    <div class="ct-nav-right">
+      <ul class="ct-marks" aria-hidden="true">
+        <li class="ct-annot">(×)</li>
+        <li class="ct-annot ct-dim ct-fade">(2)</li>
+        <li class="ct-annot ct-dim ct-fade">(Sep)</li>
+        <li class="ct-annot ct-fade">@</li>
+      </ul>
+      <ul>
+        <li><a class="ct-close" href="../">Sluiten</a></li>
+        <li class="ct-dim ct-fade" aria-hidden="true">Beschikbaar</li>
+        <li class="ct-dim ct-fade" aria-hidden="true">Toch ruimte</li>
+        <li class="ct-fade"><button class="nh-copy-email" type="button" data-email="daniel@filmforge.nl">[kopieer e-mail]</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- The paper. On submit it folds in half and posts itself off-screen. -->
+  <form class="ct-paper" id="case-form" novalidate>
+    <header class="ct-paper-head">
+      <span>Case-aanvraag</span>
+      <span class="ct-paper-head-mid">Vul de blanco</span>
+      <span>Form 01 · <span data-form-date>09.2026</span></span>
+    </header>
+
+    <div class="ct-body-copy">
+      <p class="ct-line">
+        I,
+        <span class="ct-field"><span class="ct-sizer" aria-hidden="true">Je naam</span><input id="f-name" name="name" type="text" size="1" placeholder="Je naam" autocomplete="name" required></span>,
+        reachable at
+        <span class="ct-field"><span class="ct-sizer" aria-hidden="true">Je e-mail</span><input id="f-email" name="email" type="email" size="1" placeholder="Je e-mail" autocomplete="email" required></span>,
+        vraag FilmForge een case voor mij te openen. Ik vertegenwoordig
+        <span class="ct-field"><span class="ct-sizer" aria-hidden="true">Je bedrijf</span><input id="f-company" name="company" type="text" size="1" placeholder="Je bedrijf" autocomplete="organization" required></span>,
+        en we hebben nodig:
+      </p>
+
+      <fieldset class="ct-chips" data-multi>
+        <legend class="ct-sr">What you need</legend>
+        <!-- No whitespace anywhere in here: a newline collapses to a word space,
+             which stacked on top of the gap the dot already carries. Each option
+             is bound to its dot in a nowrap .ct-opt, and the only break
+             opportunity is the <wbr> that follows — otherwise the row can break
+             between an option and its own dot (an inline-block is an atomic
+             inline and lines may break either side of one), which stranded a
+             leading "·" at the start of the wrapped row. -->
+        <span class="ct-opt"><button type="button" class="ct-chip" data-value="AI-video">[AI-video]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><span class="ct-opt"><button type="button" class="ct-chip" data-value="Videoproductie">[Videoproductie]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><span class="ct-opt"><button type="button" class="ct-chip" data-value="Website">[Website]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><span class="ct-opt"><button type="button" class="ct-chip" data-value="Webshop">[Webshop]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><button type="button" class="ct-chip" data-value="Social & IT">[Social &amp; IT]</button>
+      </fieldset>
+
+      <!-- The blank is a contenteditable span, not a textarea, so it flows as
+           part of the sentence: it starts after the label, fills the rest of the
+           line, and wraps to the full width of the sheet — with the counter
+           riding along at the end of what's been typed. -->
+      <p class="ct-words">
+        <span class="ct-words-label" id="f-brief-label">De case, in mijn woorden:</span>
+        <span class="ct-blank" id="f-brief" contenteditable="plaintext-only" role="textbox"
+              aria-multiline="true" aria-labelledby="f-brief-label"
+              aria-describedby="f-brief-count"></span><sup class="ct-count" id="f-brief-count" aria-live="polite">450</sup>
+      </p>
+
+      <fieldset class="ct-chips ct-chips-when" aria-label="When you would like to begin">
+        <span class="ct-when-label">Ik wil graag starten in</span><wbr
+        ><span class="ct-opt"><button type="button" class="ct-chip" data-value="ASAP">[ASAP]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><span class="ct-opt"><button type="button" class="ct-chip" data-value="Sep">[Sep]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><span class="ct-opt"><button type="button" class="ct-chip" data-value="Oct">[Oct]</button><span class="ct-dot" aria-hidden="true"></span></span><wbr
+        ><button type="button" class="ct-chip" data-value="Later">[Later]</button>
+      </fieldset>
+    </div>
+
+    <!-- Honeypot: real people never fill this, bots do. Named like a field a
+         form-filler wants to complete; api/case.js drops the submission
+         silently if it comes back non-empty. -->
+    <input class="ct-sr" id="company_website" name="company_website" type="text" tabindex="-1"
+           autocomplete="off" aria-hidden="true">
+
+    <p class="ct-error" id="ct-error" role="alert" hidden></p>
+
+    <button class="ct-file" type="submit">Dien de case in <span aria-hidden="true">→</span></button>
+  </form>
+
+  <!-- Filed (Figma 1715-8015). Revealed once the paper has flown off. -->
+  <section class="ct-success" id="ct-success" hidden aria-live="polite">
+    <p class="ct-check" aria-hidden="true">✓</p>
+    <p class="ct-filed">Filed <span data-filed-date></span><br>Case <span data-case-no></span></p>
+    <p>We lezen elke case.<br>Je hoort binnen<br>één werkdag.</p>
+  </section>
+
+  <footer class="ct-foot">
+    <a class="ct-mail" href="mailto:daniel@filmforge.nl">daniel@filmforge.nl</a>
+    <form class="ct-howd" id="ct-howd" hidden>
+      <label for="f-howd">Tot slot — hoe vond je ons?</label>
+      <span class="ct-field ct-field-wide"><span class="ct-sizer" aria-hidden="true">                                   </span><input id="f-howd" name="howd" type="text"></span>
+      <button type="submit" aria-label="Send">→</button>
+    </form>
+  </footer>
+</main>
+
+<script src="../js/vendor/gsap.min-3.15.0.js"></script>
+<script src="../js/copy-email.js"></script>
+<script src="../js/contact/cloth.js"></script>
+<script src="../js/contact/contact.js"></script>
+<script defer src="../js/contact/fold-tune.js"></script>
+<script src="../js/transition.js"></script>
+<!-- site-counts first: the drawer stamps its (5) / (0) from it. -->
+<script defer src="../js/site-counts.js"></script>
+<script defer src="../js/mobile-menu.js"></script>
+  <script async="" src="../js/vendor/cookie-consent-1-fs-cc.js" fs-cc-mode="opt-out"></script>
+  <script defer src="../js/analytics.js"></script>
+  <script defer src="../js/analytics-events.js"></script>
+
+<script id="ff-mailto">
+document.getElementById('case-form')?.addEventListener('submit', function(e){
+  e.preventDefault();
+  var name = document.getElementById('f-name')?.value||'';
+  var email = document.getElementById('f-email')?.value||'';
+  var company = document.getElementById('f-company')?.value||'';
+  var brief = document.getElementById('f-brief')?.innerText||'';
+  var chips = Array.from(document.querySelectorAll('.ct-chip.is-on,.ct-chip[aria-pressed="true"]')).map(b=>b.dataset.value||b.textContent).join(', ');
+  var body = 'Naam: '+name+'\nE-mail: '+email+'\nBedrijf: '+company+'\nDiensten: '+chips+'\n\n'+brief;
+  location.href = 'mailto:daniel@filmforge.nl?subject='+encodeURIComponent('Case-aanvraag FilmForge')+'&body='+encodeURIComponent(body);
+});
+</script>
+
+</body>
+</html>

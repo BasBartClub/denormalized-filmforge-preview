@@ -1,0 +1,740 @@
+/* ============================================================
+   Contact / "Case Request" — Figma 1690-7380 (form), 1715-8015
+   (filed), 1715-7949 + 1715-8075 (mobile).
+
+   A black page with a single white sheet of paper on it. The form
+   is set as a fill-in-the-blanks paragraph, and on submit the
+   sheet folds in half and posts itself off-screen
+   (js/contact/contact.js).
+
+   Self-contained: tokens.css + this file only. It deliberately
+   does NOT pull hero.css (38 KB of home-page choreography).
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* The filed state and the attribution line ship hidden; both are display:flex
+   further down, which would otherwise win over the [hidden] attribute. */
+[hidden] { display: none !important; }
+
+.ct-body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: var(--dn-font-sans);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* One shared vertical line. The lede, the sheet's left edge, the filed block and
+   the "last thing" line all start here — that alignment is the spine of the
+   layout, so it lives in a single variable rather than four grid guesses. */
+:root {
+  --ct-rail: 22.3%;
+  --ct-paper-top: calc(var(--dn-gutter) + 112px);   /* ~45px under the nav block */
+  /* Text-to-bullet gap between the options — 8px at the 21px mobile body size,
+     and it scales with the type rather than staying 8px against 35px desktop
+     copy. Swap to a flat `8px` here if it should be literal at every size. */
+  --ct-chip-gap: 0.38em;
+}
+
+/* Fixed-height stage: nav across the top, the sheet filling the rest of the
+   right side down to the bottom gutter, mail + attribution pinned bottom-left. */
+.ct {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--dn-gutter);
+}
+
+.ct-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Nav ----------------------------------------------------------- */
+/* 12-col grid so the right rail lands on the same column as the home page. */
+.ct-nav {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: start;
+  font-size: 14px;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.ct-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* Same hover as the home nav: an underline, not a dim. */
+.ct-nav a,
+.ct-nav button {
+  color: inherit;
+  text-decoration-line: none;
+  /* Regesto carries its own underline metrics (position -0.1em, thickness
+     0.05em); from-font uses them instead of a hairline we invented. */
+  text-decoration-thickness: from-font;
+  text-underline-offset: from-font;
+}
+.ct-nav a:hover,
+.ct-nav a:focus-visible,
+.ct-nav button:hover,
+.ct-nav button:focus-visible { text-decoration-line: underline; }
+
+.ct-menu { grid-column: 1 / span 4; }
+.ct-menu-toggle {
+  display: none;                 /* desktop: the columns are always shown */
+  list-style: none;
+  cursor: pointer;
+}
+.ct-menu-toggle::-webkit-details-marker { display: none; }
+
+.ct-nav-cols {
+  display: flex;
+  gap: 1rem;
+}
+.ct-annot { user-select: none; }
+.ct-sf { display: inline-block; height: 0.8em; width: auto; vertical-align: -0.08em; }
+.ct-dim { opacity: 0.5; }
+
+/* The standing brief — pulled out of the grid onto the shared rail. */
+.ct-lede {
+  position: absolute;
+  left: var(--ct-rail);
+  top: var(--dn-gutter);
+  margin: 0;
+  width: 162px;
+}
+
+.ct-nav-right {
+  grid-column: 11 / -1;
+  display: flex;
+  gap: 1.25rem;
+}
+.ct-marks { min-width: 38px; }
+/* Two of twelve columns is too little to hold "Fills anyway" on a narrower
+   desktop, and the rail broke mid-phrase. Same treatment as the home nav. */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .ct-nav-right { grid-column: 6 / -1; justify-self: end; }
+  .ct-nav-right li { white-space: nowrap; }
+}
+
+/* The copy widget must read as nav type, not a button. */
+.ct-nav .nh-copy-email {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-transform: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+/* ---- The paper ----------------------------------------------------- */
+/* Starts on the rail, runs to the right gutter, and stretches all the way to
+   the bottom of the screen (Figma). */
+.ct-paper {
+  --paper-pad: clamp(16px, 1.7vw, 24px);
+  position: absolute;
+  z-index: 1;
+  left: var(--ct-rail);
+  right: var(--dn-gutter);
+  top: var(--ct-paper-top);
+  bottom: var(--dn-gutter);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: var(--paper-pad);
+  background: #fff;
+  color: #000;
+}
+
+.ct-paper-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  font-size: clamp(14px, 1.25vw, 18px);
+  line-height: 0.9;
+}
+.ct-paper-head > :last-child { text-align: right; }
+
+/* ---- The fill-in-the-blanks paragraph ------------------------------ */
+.ct-body-copy {
+  margin-top: clamp(28px, 5vw, 76px);
+  font-family: var(--dn-font-sans);
+  font-weight: 400;                    /* Regesto Regular, per Figma */
+  font-size: clamp(20px, 2.42vw, 35px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+.ct-line { margin: 0; }
+
+/* Inline auto-growing input. The sizer and the input share one grid cell, so
+   the wrapper is always exactly as wide as the text it holds. */
+/* The hidden sizer is the only thing in flow: it sets the width AND gives the
+   wrapper its baseline, which is what keeps the blank sitting on the same line
+   as the sentence. (As an inline-grid the container took its baseline from the
+   input instead, and form controls baseline differently to text — that is what
+   dropped the blanks below the line.) The input is laid over the top. */
+/* Sizer and input share one grid cell: the hidden sizer sets the width, the
+   input is drawn over it. align-items:baseline is what keeps the blank on the
+   sentence's baseline — without it the container takes its baseline from the
+   input, and form controls baseline differently to text, which dropped the
+   blanks below the line. (inline-block instead of grid fixes the baseline too,
+   but adds its whole height to the line box and blows the leading apart.) */
+.ct-field {
+  position: relative;
+  display: inline-grid;
+  align-items: baseline;
+  vertical-align: baseline;
+  max-width: 100%;
+}
+.ct-field > * {
+  grid-area: 1 / 1;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+/* The sizer draws the rule, and it does it by being underlined text rather than
+   a box we position. Neither a border-bottom nor an absolute ::after can land
+   on the font's own underline: an input's box bottom is not a fixed distance
+   below the baseline (0.199em at 35px, 0.177em at 60px), so anything measured
+   off the box edge drifts as the type scales. The sizer sits on the same
+   baseline as the input, so `from-font` puts its underline exactly where
+   Regesto says it goes — the same place as the brief's, which is what makes the
+   whole sheet read as one hand.
+   It is transparent rather than visibility:hidden because hidden takes the
+   underline with it; it still holds the width, and the input paints over it. */
+.ct-sizer {
+  color: transparent;
+  user-select: none;
+  text-decoration-line: underline;
+  text-decoration-color: #000;
+  text-decoration-thickness: from-font;
+  text-underline-offset: from-font;
+  white-space: pre;
+  padding-inline: 0.12em;
+  min-width: 2ch;
+  /* Decoration only — it draws the rule and holds the width. Letting it take
+     the pointer means a click can land on the sizer instead of the input
+     stacked in the same grid cell. */
+  pointer-events: none;
+}
+/* WV-68 — focus is no longer signalled in red. Red reads as an error on a form
+   field ("destructive"), and nothing has gone wrong when you click into a blank.
+   The rule stays the ink colour it already is, and the label inside the blank
+   ("Your Name") fades out instead — the same "the label gets out of your way"
+   move the rest of the sheet makes. */
+.ct-field:focus-within .ct-sizer { text-decoration-color: #000; }
+.ct-field input {
+  /* Mobile browsers re-size form-control text on their own, which made the
+     blanks read smaller than the sentence they sit in. */
+  font-size: inherit;
+  line-height: inherit;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding-inline: 0.12em;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #000;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.ct-field input::placeholder {
+  color: #9f9f9f;
+  opacity: 1;
+  transition: opacity 0.22s ease;
+}
+/* Browser autofill paints its own blue/yellow wash over the field. Flood the
+   background back to paper with an inset shadow (autofill ignores
+   background-color) and hold the text black; the absurd transition delay stops
+   Chrome animating its colour back in. */
+.ct-field input:-webkit-autofill,
+.ct-field input:-webkit-autofill:hover,
+.ct-field input:-webkit-autofill:focus,
+.ct-field input:-webkit-autofill:active {
+  -webkit-text-fill-color: #000;
+  -webkit-box-shadow: 0 0 0 100px #fff inset;
+  box-shadow: 0 0 0 100px #fff inset;
+  caret-color: #000;
+  transition: background-color 100000s ease-in-out 0s;
+}
+.ct-howd .ct-field input:-webkit-autofill,
+.ct-howd .ct-field input:-webkit-autofill:hover,
+.ct-howd .ct-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 100px #000 inset;
+  box-shadow: 0 0 0 100px #000 inset;
+  caret-color: #fff;
+}
+.ct-field input:focus { outline: none; }
+/* It dimmed to #c9c9c9 before, which just made it look disabled while still
+   sitting in the space the answer goes. Gone entirely, on a fade. */
+.ct-field input:focus::placeholder { opacity: 0; }
+
+/* ---- Chips --------------------------------------------------------- */
+/* Normal text flow, not flex — the options have to wrap with the same rhythm as
+   the sentence around them, or the line breaks read as a broken layout. */
+.ct-chips {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ct-chips-when { margin-top: 0.1em; }
+/* An option and the dot after it travel together — see the note in the markup. */
+.ct-opt { white-space: nowrap; }
+.ct-when-label { margin-right: var(--ct-chip-gap); }
+
+.ct-chip {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline;
+  position: relative;      /* the loop svg hangs off this */
+  white-space: nowrap;     /* never split an option across lines — the loop can't */
+  margin: 0;
+  /* No side padding: it made the option's box wider than the text you can see,
+     so the first option in every row sat indented from the sheet's left edge
+     and every gap measured box-to-box instead of text-to-text. The loop gets
+     its horizontal room from GROW_X in contact.js instead. Vertical padding is
+     harmless — on an inline box it overflows the line box rather than pushing
+     the lines apart, and it keeps giving the loop somewhere to sit. */
+  padding: 0.2em 0 0.26em;
+  border: 0;
+  background: none;
+  color: #000;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+.ct-chip:hover { color: var(--dn-red); }
+/* Chosen = looped by hand. The loop itself is generated per option in
+   contact.js (sized to that option, so the stroke never stretches); this only
+   keeps it whole if the option lands across a line break. Without JS the
+   pressed state still reads via the underline below. */
+/* The loop is an inline svg drawn by contact.js, padded out past the option's
+   box and overflowing visibly so nothing clips its ends. Without JS the pressed
+   state still reads, via the underline. */
+.ct-loop {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+.ct-chip[aria-pressed="true"]:not(.is-drawn) {
+  text-decoration: underline;
+  text-decoration-color: var(--dn-red);
+}
+.ct-chip:focus-visible { outline: 2px solid var(--dn-red); outline-offset: 2px; }
+
+/* inline-block: the options no longer sit in a flex row, so the dot needs its
+   own box to keep a width/height at all. */
+.ct-dot {
+  display: inline-block;
+  width: 0.17em;
+  height: 0.17em;
+  /* The whole gap now lives here, and it is measured from the visible text:
+     the options no longer carry side padding and the markup no longer leaves a
+     collapsed word space either side of the dot. */
+  margin: 0 var(--ct-chip-gap);
+  border-radius: 50%;
+  background: #000;
+  vertical-align: 0.28em;
+}
+
+/* ---- "The case, in my words" --------------------------------------- */
+/* All inline, so the blank behaves exactly like the name/email blanks: it
+   continues the sentence, then wraps to the sheet's full width once the first
+   line is used up — and the counter travels on the end of what's typed. */
+.ct-words { margin: 0.1em 0 0; }
+.ct-words-label { white-space: nowrap; }
+
+.ct-blank {
+  /* WV-67 — an I-beam, like a real field. This is a <span contenteditable>, and
+     a browser only gives the text cursor to actual form controls: the blank
+     computed `cursor: auto`, i.e. the arrow, while the <input> blanks beside it
+     on the same sheet showed `cursor: text`. So the one field you write the most
+     into was the one that did not look writable. */
+  cursor: text;
+  /* Touch: without these the blank is awkward to focus and reads as dead. */
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-user-modify: read-write-plaintext-only;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  min-width: 2ch;
+  text-decoration-line: underline;
+  /* Same font metrics as the sentence's blanks, so the two rules sit at the
+     same height when they share a line. */
+  text-decoration-thickness: from-font;
+  text-underline-offset: from-font;
+  -webkit-text-decoration-skip-ink: none;
+  text-decoration-skip-ink: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  outline: none;
+}
+/* Empty state: a run of spaces sized by JS to reach the end of the line, kept
+   in ::before so it never becomes part of the typed value. */
+/* WV-67 — ::after, not ::before, and a class rather than :empty. The caret
+   stands at the start of the content, so a filler in ::before put it after 65
+   spaces — the far right of the rule, nowhere near where you start typing. And
+   the blank now holds a zero-width space to anchor that caret (see
+   markBlank() in contact.js), which means it is no longer :empty. */
+.ct-blank.is-blank::after { content: attr(data-fill); }
+.ct-blank:focus { text-decoration-color: #000; }        /* WV-68 — see above */
+
+/* Superscript, in the body colour — not a grey utility label (Figma).
+   Raised with position, not vertical-align: `super` grows the line box it sits
+   in, which pushed the brief's line a third of a line further from its label
+   than the rest of the paragraph's leading. Relative offsets don't affect
+   layout, so the rhythm holds. */
+.ct-count {
+  position: relative;
+  top: -0.5em;
+  vertical-align: baseline;
+  margin-left: 0.12em;
+  font-size: 0.62em;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
+}
+
+/* ---- Submit -------------------------------------------------------- */
+.ct-file {
+  align-self: flex-end;
+  margin-top: auto;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: none;
+  color: #000;
+  font-family: var(--dn-font-sans);
+  font-weight: 400;
+  font-size: clamp(20px, 2.42vw, 35px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.ct-file:hover { opacity: 0.55; }
+.ct-file[disabled] { opacity: 0.35; cursor: default; }
+
+.ct-error {
+  margin: 0.6em 0 0;
+  color: var(--dn-red);
+  font-size: 14px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* ---- Filed ---------------------------------------------------------- */
+/* Sits where the paper was, at the same left edge as the standing brief. */
+.ct-success {
+  position: absolute;
+  left: var(--ct-rail);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 162px;
+  font-size: 14px;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.ct-success p { margin: 0; }
+.ct-check { font-size: 16px; }
+
+/* Filed: the close control grows into the page's headline. Scaling the rail's
+   font-size (rather than hiding one CLOSE and revealing a bigger one) keeps it
+   as one continuous move; the rows beneath it just fade under it. */
+.ct-nav-right { transition: font-size 0.55s var(--dn-ease-out), gap 0.55s var(--dn-ease-out); }
+.ct-fade { transition: opacity 0.3s ease; }
+.ct-body.is-filed .ct-nav-right {
+  font-size: clamp(24px, 3vw, 43px);
+  gap: 0.5rem;
+}
+.ct-body.is-filed .ct-marks { min-width: 0; }
+.ct-body.is-filed .ct-fade { opacity: 0; pointer-events: none; }
+
+/* ---- Footer --------------------------------------------------------- */
+/* The mail address keeps the far-left gutter; the attribution line starts on
+   the shared rail, under the sheet's left edge. */
+/* Both children are positioned against .ct itself, so --ct-rail resolves
+   against the same box the sheet and the lede use. */
+.ct-foot {
+  font-size: 14px;
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+.ct-mail {
+  position: absolute;
+  left: var(--dn-gutter);
+  bottom: var(--dn-gutter);
+  color: inherit;
+  text-decoration: none;
+}
+.ct-mail:hover { opacity: 0.6; }
+
+.ct-howd {
+  position: absolute;
+  left: var(--ct-rail);
+  bottom: var(--dn-gutter);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+/* This one is drawn rather than underlined. The paper's blanks are sized to
+   their own text, so their sizer always holds something for the underline to
+   attach to (the value, or the placeholder). This field has no placeholder and
+   takes its width from min-width, so the sizer is empty until you type — and an
+   underline on nothing draws nothing. It is a full-width writing line on a row
+   of its own, so it has no neighbouring rule to line up with anyway. */
+.ct-howd .ct-sizer { text-decoration-line: none; }
+.ct-howd .ct-field::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  height: 1px;
+  background: #fff;
+  pointer-events: none;
+}
+.ct-howd .ct-field:focus-within::after { background: #fff; }   /* WV-68 */
+.ct-howd .ct-field input {
+  color: #fff;
+  /* The `font` shorthand on .ct-field > * doesn't carry text-transform, so what
+     you typed came out mixed-case in an all-caps line and read as a different
+     face. Only the value's rendering changes — the submitted string keeps the
+     casing the person actually typed. */
+  text-transform: inherit;
+}
+.ct-howd .ct-field-wide .ct-sizer { min-width: 34ch; }
+/* The rail is a percentage, so on a narrow desktop it lands inside the mail
+   address and the two ran into each other. Stack them rather than collide. */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .ct-howd { bottom: calc(var(--dn-gutter) + 26px); }
+}
+.ct-howd button {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.ct-howd button:hover { opacity: 0.6; }
+
+/* ---- Fold-and-post -------------------------------------------------- */
+/* Built by contact.js: two halves of a cloned sheet, the lower one hinged at
+   its top edge so it folds up over the upper one, then the packet flies off. */
+.ct-fold-stage {
+  position: fixed;
+  z-index: 80;
+  perspective: 1800px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.ct-fold-half {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  transform-style: preserve-3d;
+}
+.ct-fold-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background: #fff;
+  will-change: filter;
+}
+/* The reverse of the sheet: blank stock, very slightly uneven so it reads as
+   paper catching light rather than a white rectangle. */
+.ct-fold-back {
+  transform: rotateX(180deg);
+  background: linear-gradient(170deg, #eeeeec 0%, #fbfbfa 38%, #ffffff 62%, #f0f0ee 100%);
+}
+/* Shadow the flap throws onto the sheet it is closing over. Anchored at the
+   crease and scaled up by JS as the flap swings, so the shadow travels the way
+   a real one does instead of just fading in. */
+/* z-index: the cloned sheet inherits .ct-paper's z-index:1, so the shading has
+   to sit above it or it never shows. */
+.ct-fold-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: bottom center;
+  background: linear-gradient(to top,
+    rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.26) 38%, rgba(0,0,0,0.06) 72%, rgba(0,0,0,0) 100%);
+  opacity: 0;
+  pointer-events: none;
+}
+/* A hint of contact shadow right on the fold line. */
+.ct-fold-crease {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: 2px;
+  background: linear-gradient(to top, rgba(0,0,0,0.35), rgba(0,0,0,0));
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-fold-stage { display: none !important; }
+}
+
+/* ===================================================================
+   MOBILE (Figma 1715-7949 / 1715-8075) — [Menu] · [Close], the brief
+   under the nav, then the sheet. NB: this export scales the root font
+   size with the viewport, so mobile uses px, not rem.
+   =================================================================== */
+@media (max-width: 767px) {
+  /* No shared rail on a phone — everything returns to normal flow at 16px. */
+  .ct {
+    display: flex;
+    flex-direction: column;
+    /* Mobile browser toolbars overlay the viewport, so "File the Case" ended up
+       underneath them. svh is the height with the bars showing, and the safe
+       area keeps clear of the home indicator / floating bars on top of that. */
+    min-height: 100svh;
+    padding: 16px 16px calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+  .ct-lede,
+  .ct-paper,
+  .ct-success,
+  .ct-mail,
+  .ct-howd { position: static; left: auto; right: auto; top: auto; bottom: auto; transform: none; }
+  .ct-lede { width: auto; }
+  .ct-foot { margin-top: auto; padding-top: 20px; }
+
+  /* Grid, not wrapped flex: `flex:1 0 100%` on the brief was being clamped by
+     its own max-width, so it never forced the wrap and sat on the nav's line.
+     A grid puts it on row 2 regardless of how wide it is. */
+  .ct-nav {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: start;
+    row-gap: 10px;
+  }
+  .ct-menu { grid-column: 1; grid-row: 1; }
+  .ct-nav-right { grid-column: 2; grid-row: 1; justify-self: end; }
+  /* The marks column is hidden here, so Close loses its (x) — the design
+     brackets it instead. */
+  .ct-close::before { content: "["; }
+  .ct-close::after { content: "]"; }
+  /* Beat `.ct-nav ul { display:flex }` — a bare .ct-marks loses on specificity. */
+  .ct-nav .ct-marks { display: none; }
+  .ct-menu-toggle { display: block; }
+  .ct-menu[open] .ct-nav-cols { padding-top: 12px; }
+  /* Only [Close] on a phone — availability and copy-email are desk-side chrome. */
+  .ct-nav-right { gap: 0; }
+  .ct-nav .ct-nav-right ul:last-child li:not(:first-child) { display: none; }
+  /* Figma 1715-7949 breaks it "…TELL US / WHY YOURS…". */
+  .ct-lede {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: 232px;
+  }
+
+  .ct-paper {
+    flex: 1;                 /* still runs to the bottom of the screen */
+    width: 100%;
+    margin-top: 14px;
+    --paper-pad: 14px;
+  }
+  .ct-body-copy {
+    margin-top: 18px;
+    font-size: 21px;
+    line-height: 1.14;
+  }
+  .ct-paper-head { grid-template-columns: 1fr auto; font-size: 14px; }
+  .ct-paper-head-mid { display: none; }
+  .ct-paper-head > :last-child { grid-column: 2; }
+
+  /* On a phone an inline blank is a few characters wide — too small to hit, and
+     it reads as decoration rather than something you write in. Give it a real
+     ruled area instead: full width, obviously tappable, several lines deep. */
+  .ct-words { position: relative; }
+  .ct-blank {
+    display: block;
+    width: 100%;
+    min-height: 3.4em;
+    margin-top: 0.15em;
+    line-height: 1.7;
+    text-decoration: none;
+    /* Each rule is painted at the BOTTOM of its line band, so the last one lands
+       exactly on the box edge — and the box rounds a hundredth of a pixel short
+       of a whole band, which clipped it. The padding gives that final rule
+       somewhere to land; the background paints over padding, so it still shows. */
+    padding-bottom: 2px;
+    background-image: repeating-linear-gradient(to bottom,
+      transparent 0, transparent calc(1.7em - 1px), #000 calc(1.7em - 1px), #000 1.7em);
+  }
+  /* The measured filler only exists to carry an inline underline — the ruled
+     lines do that job here. */
+  .ct-blank.is-blank::after { content: ""; }
+  .ct-count { position: absolute; right: 0; top: 0; margin: 0; }
+
+  /* margin-top:auto has to survive — it is what pins this to the sheet's foot. */
+  .ct-file { margin-top: auto; padding-top: 32px; font-size: 26px; }
+
+  .ct-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  /* The attribution line runs the full width here (Figma 1715-8015): the
+     question on its own line, then the rule reaching out to the arrow. */
+  .ct-howd {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    column-gap: 14px;
+    row-gap: 8px;
+    width: 100%;
+  }
+  .ct-howd > label { grid-column: 1 / -1; }
+  .ct-howd .ct-field { display: grid; width: 100%; min-width: 0; }
+  .ct-howd .ct-field-wide .ct-sizer { min-width: 0; }
+
+  .ct-success {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: 280px;
+    /* Centred between the nav and the foot: the auto margins take half the free
+       space each, which leaves the attribution line sitting on the bottom edge. */
+    margin: auto 0;
+  }
+  /* Filed. Close grows into the page's headline — the desktop `3vw` is ~11px on
+     a phone, so the clamp bottomed out at its 24px floor and Close barely moved.
+     The mail address steps aside so the question isn't stuck to it. */
+  .ct-body.is-filed .ct-nav-right { font-size: clamp(32px, 10.6vw, 46px); }
+  .ct-body.is-filed .ct-mail { display: none; }
+  .ct-body.is-filed .ct-foot { margin-top: 0; }
+}

@@ -1,0 +1,73 @@
+/* ============================================================
+   Denormalized™ — design tokens.
+   Single source of truth for brand primitives. Consumed by the
+   main site (hero.css and onward) AND /lab experiments, so the
+   lab always matches the live design language.
+
+   Values consolidated from the Webflow export css, the ported
+   hero, and the Next.js build's globals.css.
+   ============================================================ */
+
+:root {
+  /* ---- Color ---- */
+  --dn-bg: #ffffff;
+  --dn-fg: #000000;
+  --dn-muted: #4c4c4c;
+  --dn-line: #000000;
+  --dn-accent: #eae63a;   /* reel yellow */
+  --dn-red: #e72b25;      /* cursor / marker red (old site BASE_COLOR_LIGHT) */
+
+  /* ---- Spacing — 8px base, fluid gutters ---- */
+  /* 2.22vw matches the Webflow content gutter (2.22% padding) so the ported hero
+     shares the same far-left line as every section below it. */
+  --dn-gutter: clamp(1.25rem, 2.22vw, 2.5rem);
+  --dn-section: clamp(4rem, 6vw + 2rem, 10rem);
+
+  /* ---- Type scale ---- */
+  --dn-text-xs: 0.75rem;    /* 12px — labels, reel tag */
+  --dn-text-sm: 0.875rem;   /* 14px — nav, body small */
+  --dn-display: clamp(4rem, 14vw, 16rem); /* wordmark-scale headlines */
+
+  /* ---- Type faces (families declared below) ---- */
+  --dn-font-sans: "Regestogrotesk", Arial, sans-serif;
+  --dn-font-accent: "Hawk", Arial, sans-serif;
+  --dn-font-annot: "SF Pro Annotations", "SF Pro", system-ui, sans-serif;
+
+  /* ---- Shape ---- */
+  --dn-radius-pill: 999px;
+
+  /* ---- Motion (defaults used across scroll work) ---- */
+  --dn-ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* ~power3.out */
+  --dn-dur-fast: 0.2s;
+  --dn-dur-base: 0.4s;
+}
+
+/* ---- Brand faces ----
+   Same files the Webflow export ships; declared here too so detached
+   pages (the lab) get them without importing the whole site css.
+   Browsers dedupe identical @font-face declarations. */
+@font-face {
+  font-family: "Regestogrotesk";
+  src: url("../fonts/RegestoGrotesk-Regular.woff") format("woff");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Regestogrotesk";
+  src: url("../fonts/RegestoGrotesk-Medium.woff") format("woff");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hawk";
+  src: url("../fonts/Hawk-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+/* SF Pro subset — only the two nav annotation symbols (U+100390, U+1023E7). */
+@font-face {
+  font-family: "SF Pro Annotations";
+  src: url("../fonts/sf-pro-annotations.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}

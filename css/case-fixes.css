@@ -1,0 +1,25 @@
+/* Case-study corrections that must survive a Webflow re-export.
+   Keep this file small and additive — never restate Webflow rules, only fix. */
+
+/* The credits column sits in .cases-tabs_block, a flex row with
+   align-items:flex-start, so it starts at the same y as the tab menu (221).
+   But .cases-divider paints a full-width hairline on the tab-menu baseline
+   (271), which then runs straight through the credit rows — on Fourdesign it
+   cut "Creative development", on Luminar "Client, Partner, Friend".
+   Drop the credits to where the service list begins (302) so both columns
+   start on the same line, below the rule. */
+@media screen and (min-width: 992px) {
+  .cases-tabs_block > .gap-so-little.is-4px-gap {
+    margin-top: 5.0625rem; /* 81px: tab-menu height + its gap to the pane */
+  }
+}
+
+/* End-of-case credits: .cases-author_item is justify-content:flex-end and
+   .gap-wrap-little.max-size only caps width, so a row whose line fits on ONE
+   line shrinks to its content and gets shoved right of every row that wraps to
+   two. Pin the column width so the names align whatever the copy length. */
+@media screen and (min-width: 992px) {
+  .cases-author_item > .gap-wrap-little.max-size {
+    width: 17.3125rem; /* same value the cap already uses */
+  }
+}

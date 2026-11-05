@@ -1,0 +1,87 @@
+/* ============================================================
+   Mobile menu drawer — the black full-screen sheet injected by
+   js/mobile-menu.js.
+
+   Lifted out of hero.css (same reason footer.css was) so the
+   contact page can carry the real overlay without pulling in
+   38KB of home-page scroll choreography — WV-43, where contact
+   still had the <details> disclosure the home page replaced.
+   Needs tokens.css for the brand face.
+   ============================================================ */
+
+/* WV-40. Measured off the design attached to the Notion row (786×1704 = 2× a
+   393pt screen), so these are its own numbers, not an eyeball:
+     [Close]        y 33.5,  x 17            14px
+     section rows   y 541.5 → 684, CENTRED   cap 29.5 → 41px at 0.9, pitch 37
+     CTA block      y 715 → 788.5,  x 42.5 → 351   (63 clear of the bottom)
+     inside it      "Work with us" 41px, then a 14px row: openings · month
+   The list sits against the bottom, not the middle. */
+.nh-mdrawer {
+  /* The design is drawn on a 393pt screen and its rows fill the width almost
+     exactly, so a fixed 41px wraps on anything narrower. Everything that has to
+     fit across the sheet is sized from the viewport at the design's own ratio
+     (41/393), capped so it can't run away on a tablet-width phone. */
+  --menu: min(10.2vw, 43px);
+  --inset: 10.81vw;                /* the CTA block's side inset: 42.5 of 393 */
+  position: fixed; inset: 0; z-index: 9000;
+  background: #000; color: #fff;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 32px 0 63px;
+  font-family: var(--dn-font-sans);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.32s ease, visibility 0s 0.32s;
+}
+.nh-mdrawer.is-open {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transition: opacity 0.32s ease;
+}
+.nh-mdrawer-close {
+  position: absolute; top: 32px; left: 17px;
+  padding: 0; background: none; border: 0; cursor: pointer;
+  color: inherit; font: inherit; font-size: 14px; font-weight: 500;
+  line-height: 0.92; text-transform: uppercase;
+}
+
+.nh-mdrawer-nav { display: flex; flex-direction: column; text-align: center; padding-inline: 17px; }
+.nh-mdrawer-nav a {
+  display: block;
+  color: inherit; text-decoration: none;
+  font-size: var(--menu); font-weight: 500; line-height: 0.9;
+  letter-spacing: -0.01em; text-transform: uppercase;
+}
+/* The count rides the top of the word. vertical-align:super would grow the line
+   box and break the 37px pitch, so it is offset with position instead. */
+/* WV-45. Both values are em of the WORD, not of the count: at font-size:14px a
+   -0.62em raise resolved against 14 and lifted 8.7px, which parked it halfway
+   down the glyph and read as centred rather than superscript. Same mistake as
+   the footer count. */
+.nh-mdrawer-n {
+  position: relative;
+  font-size: 0.34em;
+  top: -1.55em;
+  margin-left: 0.04em;
+  font-weight: 500; line-height: 1;
+  vertical-align: baseline;
+}
+
+/* Filled block — the one white thing on the sheet, so it reads as the action. */
+.nh-mdrawer-cta {
+  display: block;
+  margin: 31px var(--inset) 0;
+  padding: min(3.05vw, 13px);     /* 12 of 393 */
+  background: #fff; color: #000;
+  text-decoration: none;
+}
+.nh-mdrawer-cta-line {
+  display: block;
+  font-size: var(--menu); font-weight: 500; line-height: 0.9;
+  letter-spacing: -0.01em; text-transform: uppercase;
+}
+.nh-mdrawer-cta-meta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 6px;
+  font-size: 14px; font-weight: 500; line-height: 0.92; text-transform: uppercase;
+}
+
+html.nh-mdrawer-lock, html.nh-mdrawer-lock body { overflow: hidden; }
+@media (min-width: 768px) { .nh-mdrawer { display: none !important; } }

@@ -1,0 +1,211 @@
+/* ============================================================
+   Site footer — shared by the home page and every case study.
+
+   Lifted out of hero.css so the case studies can have the same
+   footer without dragging in 38KB of home-page choreography.
+   Needs tokens.css + the Webflow base sheet for .footer-* and
+   .text-num; everything below is ours.
+   ============================================================ */
+
+/* ---- Undoing Webflow ------------------------------------------------
+   .text-num.is-white and .footer-link shipped as flex rows with
+   overflow:hidden, which is how Webflow slid its two stacked text copies.
+   Nothing does that any more — the roll clips per LETTER now — and left in
+   place the flex context squeezed the letter block 6.6px narrower than its
+   own glyphs and cut the tail off. These are plain inline text again. */
+.text-num.is-white,
+.footer-link {
+  display: inline-block;
+  overflow: visible;
+  cursor: pointer;
+}
+
+
+/* ---- Footer top line + mark (Figma 1724-8188 "Footer new") ----------- */
+/* WV-35, then re-choreographed. The "drop us a line at" label is gone; the form
+   link and the address now share ONE line — File a Case at x29, the address at
+   x716 of 1440 — with no rule between them, and the mark has moved from the top
+   left to the bottom right (x1350 y746). Both links are .text-num, which is
+   already the design's 72px Medium at 0.9, so there is still no new type scale.
+   The wrapper stays in the markup because it is what carries the phone's gutter
+   and hairlines (.gap-so-little.is-pad-mob). */
+.footer-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+@media (min-width: 480px) {
+  /* Hand the two links straight to .footer-up_block's two columns so they sit
+     on one line, without losing the wrapper the phone needs. */
+  .footer-cta { display: contents; }
+  .footer-file { grid-column: 1; }
+  .footer-mail { grid-column: 2; }
+
+  /* The mark: bottom right, level with the last content row rather than the
+     padding edge — 5.5rem is .footer-body's own padding-bottom. */
+  .footer-body { position: relative; }
+  .footer-logo {
+    position: absolute;
+    right: 0;
+    bottom: 5.5rem;
+    /* Both dimensions stated: the img inside is a Webflow .image at height:100%,
+       so an auto box collapses to nothing before the gif has loaded.
+
+       WV-64 — SQUARE, because the file is. motion-logo-inverted-v2.gif is 360×360
+       with the mark sitting 252×199 inside it; the padding is there because the
+       figures walk around in it. Webflow's .image is width:100%/height:100% with
+       no object-fit, so a 58×45 box stretched that square file and squashed the
+       mark's height by 22% (aspect 1.27 rendered as 1.63). Matching the box to
+       the file's aspect is what un-squashes it — the mark keeps the width it had
+       and gets its height back. */
+    width: 3.625rem;
+    height: 3.625rem;
+  }
+  /* Belt and braces: if the mark is ever re-exported at a different aspect, it
+     letterboxes instead of silently distorting again. */
+  .footer-logo .image { object-fit: contain; }
+}
+
+/* The counts ride the TOP of the word — superscript, not subscript. They used to
+   get there via align-items:flex-start on a flex .footer-link; that link is
+   plain inline-block now (nothing left to flex), so the raise is explicit.
+   position rather than vertical-align:super, which would grow the line box and
+   break the list's rhythm. */
+.footer-count {
+  position: relative;
+  /* Both values are em of the WORD, not of the count — at font-size:14px a
+     -0.55em raise resolved against 14 and lifted 7.7px, which parked it halfway
+     down the glyph and read as a subscript. 0.33em of the 42px word is the
+     design's 14px, and the raise now scales with the type it hangs off. */
+  font-size: 0.33em;
+  top: -1.55em;
+  vertical-align: baseline;
+  margin-left: 0.06em;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.footer-link.is-current { color: #fff; }
+
+/* WV-27: the footer's three rows were flex space-between, so each right-side item
+   (email / © All Rights / menu) landed at a content-dependent x (606 / 574 / 615).
+   A 2-column grid pins the right column to one 50% edge so they all line up. */
+@media (min-width: 480px) {
+  .footer-up_block, .footer-text_block, .footer-link_block {
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 0;
+  }
+  /* kill per-block left padding so the right column starts on one line */
+  .footer-link_block { padding-left: 0; }
+  .footer-text_block > .footer-text_wrap { padding-left: 0; }
+  /* The right column is now a stack (address over the form link), so the logo
+     has to sit at the top of it rather than beside its middle. */
+  .footer-up_block { align-items: start; }
+}
+
+
+
+/* ---- WV-47: one H2 size on mobile ----------------------------------
+   This sheet is the only one of ours that every page carrying the export's
+   type classes loads, so the fix lives here rather than in hero.css.
+
+   Below 480 the export hands .hed-3 — the section-headline class — a size per
+   decorative modifier, and the modifiers are about colour and alignment, not
+   about level. Same tag, same job, four sizes:
+
+     .hed-3.is-white.is-center   11vw     43px   case study H2
+     .hed-3.no-letter.is-500-ob  12.4vw   49px   case study H1
+     .hed-3.is-left              12.8vw   50px   "We write sometimes."
+     .hed-3.is-white             13.33vw  52px   ROMAN & SAM
+
+   Every H2 is pinned to 12.8vw, the one the homepage already uses. The two
+   that keep their own size are not H2s: the case study H1 above its own page,
+   and ROMAN & SAM, which is a display lockup the About frame draws at 50 on a
+   375 board — that IS 13.33vw. The selectors carry the h2 plus every modifier
+   they have to outrank, because the export's rules are three classes deep. */
+@media screen and (max-width: 479px) {
+  h2.hed-3,
+  h2.hed-3.is-left,
+  h2.hed-3.is-left.reveal-text,
+  h2.hed-3.is-white,
+  h2.hed-3.is-white.is-center,
+  h2.hed-3.no-letter,
+  h2.hed-3.no-letter.reveal-text {
+    font-size: 12.8vw;
+  }
+}
+
+/* ---- Contrast ------------------------------------------------------- */
+/* #aaa on white is 2.32:1, and AA wants 4.5:1 at this size — the newsletter
+   label and the email field both failed. #767676 is the lightest grey that
+   clears it (4.54:1); anything lighter does not. It still reads as the quiet
+   grey it was, one step down.
+
+   The field needed more than that: .text-field set color:#aaa on the INPUT, so
+   what you typed came out as faint as the placeholder. The placeholder stays
+   grey — that is the state the page is normally in, so nothing looks different
+   — and typed text goes to the body colour, where it belongs. */
+.text-small.is-grey { color: #767676; }
+
+.text-field { color: #111; }
+.text-field::placeholder { color: #767676; opacity: 1; }
+.text-field::-webkit-input-placeholder { color: #767676; }
+
+/* ---- Newsletter reply ------------------------------------------------ */
+/* The confirmation after a signup. Webflow's own .w-form-done was a centred
+   grey box and .w-form-fail a pink one — neither belongs on this page, and
+   both are gone along with the .w-form wrapper that made webflow.js hijack
+   the form. This is the same quiet grey as the label above the field, so the
+   answer arrives in the page's own voice.
+
+   min-height matches the height of the field it replaces exactly, so the block
+   does not jump when the form is swapped out for the reply. */
+.nl-note {
+  margin: 0;
+  min-height: 1.375rem;
+  color: #767676;
+  font-family: Regestogrotesk, Arial, sans-serif;
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 130%;
+}
+.nl-note[hidden] { display: none; }
+.nl-note.is-error { color: #e72b25; }
+
+/* .form sets display:flex, and a class selector outranks the UA stylesheet's
+   [hidden]{display:none} — so setting form.hidden left the form sitting there
+   under its own confirmation, doubling the block's height. Measured: 19.55px
+   before, 39.11px after. This is the line that actually hides it. */
+.nl-form[hidden] { display: none; }
+
+/* ---- Privacy policy: let the page grow with its own text -------------- */
+/* .policy-text_block was position:absolute, so it added nothing to its
+   parent's height, and .policy-header carried a hardcoded min-height:134.5rem
+   measured against the OLD, shorter policy. The rewritten policy is 2636px
+   tall against that 1118px cap — it ran 1518px straight over the footer.
+
+   Mobile never had the bug: the max-width:479px block already sets the block
+   static and the header to min-height:auto. This is the same idea for every
+   width above that, minus the stacking — the meta column still has to sit
+   under the text and stay sticky, so both children share one grid cell and the
+   row grows to whatever the text needs.
+
+   minmax(0, 1fr) rather than 1fr: a bare 1fr keeps an automatic minimum, and
+   the sticky column's min-content width pushed the track to 716.83px inside a
+   714.77px header — enough to hang the text 2px past the right edge. */
+@media (min-width: 480px) {
+  .policy-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding-bottom: 7.5rem;    /* air before the footer, on top of the block's own */
+  }
+  .policy-ifo-stlky,
+  .policy-text_block { grid-area: 1 / 1; }
+  .policy-text_block {
+    position: static;
+    justify-self: end;
+    align-self: start;
+  }
+}

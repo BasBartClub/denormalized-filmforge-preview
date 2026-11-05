@@ -1,0 +1,1187 @@
+/* ============================================================
+   New hero — ported from the Next.js build (Hero.tsx + TeaserReel.tsx).
+   All classes are nh- prefixed to avoid collisions with Webflow /
+   Splitting.js styles (.char is taken by Splitting).
+   Fonts reuse the export's own faces: 'Regestogrotesk' + 'Hawk'.
+   ============================================================ */
+
+/* Tokens (colors, spacing, faces) come from tokens.css — loaded before
+   this file. --nh-gutter is kept as a local alias because reel.js
+   animates against it. */
+:root {
+  --nh-gutter: var(--dn-gutter);
+}
+
+/* ---- Section shell ------------------------------------------------ */
+/* A plain in-flow section — it scrolls away normally (no peel). The reveal now
+   lives at the cases→dossier hand-off (the cases lifts to uncover the doc). */
+.nh-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  font-family: var(--dn-font-sans);
+}
+
+/* ---- Cases (embedded experiment) ---------------------------------- */
+/* The section is tall to give the pinned thread its scroll range. The iframe
+   sticks to the viewport (behind the fixed hero, z 5) so the peel reveals it,
+   then unpins at the bottom so the next section flows up over it. */
+.cases-embed {
+  position: relative;
+  background: #000;            /* shows through the peel + behind the iframe */
+}
+#cases-scroll {
+  height: 800vh;               /* peel + thread scrub + resolve + curtain + tail */
+}
+#cases-frame {
+  position: sticky;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  border: 0;
+}
+
+/* Outro curtain — the thread's red, grown from a thin center line to full
+   bleed as the section ends, handing into the (same red) Process section.
+   Above the peeled hero (z 5), below the persistent nav (z 50). JS drives the
+   clip-path + visibility (cases.js). */
+/* Process section — ARCHIVED. Replaced in the flow by the dossier document,
+   which now arrives directly after cases. Kept in the markup (reversible) but
+   removed from the layout; the base red below is retained for if it returns. */
+#procces-section { display: none; background-color: #e72b25; }
+
+#cases-outro {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  z-index: 6;
+  background: #e72b25;                 /* == .section.is-color (Process) */
+  clip-path: inset(50% 0 50% 0);       /* collapsed to a center line at rest */
+  visibility: hidden;
+  pointer-events: none;
+  will-change: clip-path;
+}
+
+/* ---- Persistent nav ----------------------------------------------- */
+/* Fixed above everything and blended with `difference` so the links read
+   as black over the white hero and flip to white over the dark cases
+   section revealed by the peel. Sits outside .nh-hero → never peels. */
+/* Spans the full width so the right rail can sit on the 11th column of the
+   Figma 12-col grid (left:83.33% at 1440). Grid, so both groups share one row. */
+.nh-nav-fixed {
+  position: absolute;          /* not fixed for now — nav scrolls away with the hero */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  padding: var(--nh-gutter);
+  /* The nav lives OUTSIDE .nh-hero so it never peels — which also means it was
+     inheriting Webflow's body Arial rather than the brand face. That is why the
+     weight never read as Medium (Arial has no 500) and why the (→) mark was a
+     stranger: Regesto has its own arrow at U+2192. */
+  font-family: var(--dn-font-sans);
+  color: #fff;                 /* difference source: white → black on white bg */
+  mix-blend-mode: difference;
+  pointer-events: none;        /* container is inert; only links are clickable */
+}
+.nh-nav-fixed a,
+.nh-nav-fixed button { pointer-events: auto; }
+
+.nh-nav-cols { grid-column: 1 / span 4; }
+
+/* ---- Right rail: work-with-us · availability · copy email ---------- */
+/* Figma 1715-7892 puts the marks column at left calc(83.333% - 11px) and the
+   labels at calc(87.5% - 13px) — i.e. measured off the VIEWPORT, not off the
+   nav's padded content box, so it's positioned rather than grid-placed. */
+/* Anchored by its RIGHT edge, not its left. Figma puts the labels' right edge at
+   1348 of 1440 — 6.39% in from the gutter side — but the rail's type is pinned at
+   14px while the frame's proportions assume 1440. Left-anchored, the block stayed
+   at 83% while the words stopped growing, so on a wide screen the space to its
+   right kept opening up. Anchoring the right edge holds the frame's gap at every
+   width; at 1440 it lands within ~12px of the frame. */
+.nh-nav-right {
+  position: absolute;
+  top: var(--nh-gutter);
+  right: 6.39%;
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+.nh-nav-right ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.nh-nav-right .nh-nav-marks { min-width: 38px; }
+/* A row that breaks mid-phrase also breaks the row-for-row alignment with the
+   marks column, so no row is ever allowed to wrap. */
+.nh-nav-right li { white-space: nowrap; }
+/* Rows 1–3 are a single anchor with a line per span, so they keep the marks
+   column's rhythm while hovering any one of them underlines the whole block. */
+.nh-nav-block > a,
+.nh-nav-block > a > span { display: block; }
+.nh-nav-right a,
+.nh-copy-email {
+  color: inherit;
+  /* The line is what says "these belong together", so it is declared here and
+     only switched on for hover — the shorthand would reset the thickness. */
+  text-decoration-line: none;
+  /* Regesto carries its own underline metrics (position -0.1em, thickness
+     0.05em); from-font uses them instead of a hairline we invented. */
+  text-decoration-thickness: from-font;
+  text-underline-offset: from-font;
+}
+.nh-nav-right a:hover,
+.nh-nav-right a:focus-visible,
+.nh-copy-email:hover,
+.nh-copy-email:focus-visible { text-decoration-line: underline; }
+/* The copy widget is a button so it is keyboard-operable, but must read as the
+   surrounding nav type — strip every UA button style. */
+.nh-copy-email {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-transform: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.nh-nav-cols {
+  display: flex;
+  gap: 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+
+.nh-nav-cols ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nh-nav-cols a {
+  color: inherit;
+  text-decoration-line: none;
+  /* Regesto carries its own underline metrics (position -0.1em, thickness
+     0.05em); from-font uses them instead of a hairline we invented. */
+  text-decoration-thickness: from-font;
+  text-underline-offset: from-font;
+}
+.nh-nav-cols a:hover,
+.nh-nav-cols a:focus-visible { text-decoration-line: underline; }
+
+/* ---- Hovering one item quiets the rest of its group ----------------- */
+/* Only the text is hoverable (the nav sets pointer-events:none and hands it
+   back to a/button), so the <li> only lights up when the words are under the
+   cursor — not its whole column-wide box. The marks sit in a separate column,
+   so each is paired back to its own row by index; without that, hovering a link
+   would dim the annotation that belongs to it. */
+.nh-nav-cols li,
+.nh-nav-right li { transition: opacity 0.25s ease; }
+.nh-nav-cols:hover li,
+.nh-nav-right:hover li { opacity: 0.3; }
+.nh-nav-cols li:hover,
+.nh-nav-right li:hover { opacity: 1; }
+
+.nh-nav-cols:has(> ul:first-child > li:nth-child(1) a:hover) > ul:last-child > li:nth-child(1),
+.nh-nav-cols:has(> ul:first-child > li:nth-child(2) a:hover) > ul:last-child > li:nth-child(2),
+.nh-nav-cols:has(> ul:first-child > li:nth-child(3) a:hover) > ul:last-child > li:nth-child(3),
+.nh-nav-cols:has(> ul:first-child > li:nth-child(4) a:hover) > ul:last-child > li:nth-child(4) { opacity: 1; }
+
+/* The work-with-us block is one link across three rows, so it keeps three. */
+.nh-nav-right:has(.nh-nav-block a:hover) .nh-nav-marks li:nth-child(-n+3) { opacity: 1; }
+.nh-nav-right:has(.nh-copy-email:hover) .nh-nav-marks li:nth-child(4) { opacity: 1; }
+
+.nh-nav-annot { user-select: none; }
+.nh-nav-sf { display: inline-block; height: 0.8em; width: auto; vertical-align: -0.08em; }
+.nh-annot-sf {
+  font-family: var(--dn-font-annot);
+  font-weight: 510;
+}
+
+/* ---- Center stack: motion logo + intro paragraph beneath it -------- */
+/* Figma 1715-7892 centres the paragraph under the walking figures (it used to
+   sit bottom-left under the wordmark). */
+.nh-logo-area {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5rem;
+}
+.nh-logo {
+  position: relative;
+  width: 6rem;            /* WV-9: the walking figures read too small */
+  aspect-ratio: 1 / 1;
+}
+
+/* ---- Wordmark + rail ---------------------------------------------- */
+.nh-hero-bottom {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--nh-gutter) 2rem;
+}
+
+/* Strategy · Driven · Design over a hairline, directly above the wordmark.
+   Grid (not space-between) so "Driven" lands on the true centre regardless of
+   how wide the two outer words are. */
+.nh-hero-rail {
+  /* WV-65 — the tagline is four words now ("Well Founded Creative Solutions"),
+     and this was `grid-template-columns: 1fr auto 1fr`: three columns, one per
+     word, with the middle one centred. space-between spreads whatever number of
+     words it is edge to edge, which is the same result for three and the right
+     one for four. rail-string.js's hairline is position:absolute, so it is not a
+     flex item and the count stays honest. */
+  /* Back to a grid now the tagline is three words again: space-between centres
+     the middle word between the outer words' INNER edges, so "Well-Founded"
+     being wider than "Solutions" pushed "Creative" off the axis the figures
+     stand on. 1fr auto 1fr pins it to the true centre whatever the outer
+     widths. The hairline svg is position:absolute, so it takes no cell. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1ch;
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid currentColor;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+.nh-hero-rail span:last-child { text-align: right; }
+
+.nh-wordmark-wrap { width: 100%; }
+
+.nh-wordmark {
+  margin: 0;
+  font-family: var(--dn-font-sans);
+  font-weight: 500; /* Regesto Medium per Figma */
+  font-size: clamp(4rem, 14vw, 16rem); /* pre-fit default; JS refines */
+  line-height: 0.9;
+  /* Tracking (-0.02em) + kerning are baked into per-slot margins by
+     wordmark.js — CSS letter-spacing does not reach the inline-block
+     slots, so declaring it here would do nothing (or double-count in
+     browsers that do apply it). Keep at 0. */
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: block;
+}
+
+.nh-wordmark-inner {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.nh-wordmark .nh-char {
+  display: inline-block;
+  will-change: transform;
+}
+
+.nh-wordmark .nh-morph-letter { cursor: pointer; }
+
+.nh-hero-para {
+  margin: 0;             /* centred under the motion logo (Figma 1715-7892) */
+  max-width: 333px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 0.9;
+
+  /* Revealed here rather than from hero.js, because this paragraph is the page's
+     LCP element — the logo is a Lottie and the wordmark renders to canvases, so
+     neither counts as contentful text and this modest block wins by default.
+     Held at opacity 0 until a module that waits on GSAP got round to it, it put
+     the largest text's first paint ~6s late on a throttled phone; driven from
+     CSS it starts at first paint instead.
+
+     Same choreography as the tween it replaces: 0.7s hold, 0.8s, 40px rise. The
+     curve is the closest cubic-bezier to GSAP's power3.out — which is ease-out-
+     QUART, not cubic — fitted over 101 samples: max error 0.4% of the travel,
+     i.e. 0.16px of the 40px. The textbook quart bezier (.165,.84,.44,1) is 4.4%
+     off, which is 1.8px and visible. `both` holds the from-state through the
+     delay, so nothing flashes before the reveal. */
+  animation: nh-para-in 0.8s cubic-bezier(0.255, 0.99, 0.48, 1) 0.7s both;
+}
+
+@keyframes nh-para-in {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* HERO — "walking the line" (Figma 1765-7230).
+   The rail IS the horizon: its hairline sits on the viewport's exact centre
+   (frame: line y438 of 875), the words hang just beneath it, the figures stand
+   ON it, and the paragraph moves down into the space between the rail and the
+   wordmark. Positioned rather than transformed, because GSAP animates the
+   paragraph's y on reveal and the whole block's y on scroll. */
+@media (min-width: 768px) {
+  .nh-logo-area {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;      /* covers the wordmark; only its children take clicks */
+  }
+  .nh-hero-bottom { margin-top: auto; }   /* .nh-logo-area no longer spaces it */
+
+  .nh-hero-rail {
+    position: absolute;
+    left: var(--nh-gutter);
+    right: var(--nh-gutter);
+    top: calc(50% - var(--nh-lift, 0px));
+    margin: 0;
+    /* 12px of AIR between the hairline and the cap of the first word (8 x 1.5) —
+       which is what the eye reads, and is not the same as 12px of padding: at
+       line-height .92 the glyph box sits ~2.3px above the line box, so the
+       padding is always the air minus that. */
+    padding: 9.7px 0 0;
+    border-top: 1px solid currentColor;
+    border-bottom: 0;
+  }
+
+  /* The alignment trick. The artwork's own feet sit at 82.7% of its frame —
+     measured off the webp sequence, identical on every frame — and the frame
+     places the 100px box so that foot line lands on the hairline. So the offset
+     is the foot fraction, not half the box: centring it would float the figures
+     above the line by 17px. */
+  .nh-logo {
+    --nh-foot: 0.827;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(50% - var(--nh-lift, 0px));
+    width: 6.25rem;                       /* Figma: 100 at 1440 */
+    margin: calc(var(--nh-foot) * -6.25rem) auto 0;
+    pointer-events: auto;
+  }
+
+  .nh-hero-para {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(50% + 5.5625rem - var(--nh-lift, 0px));   /* frame: y527, 89px under the line */
+    width: 289px;                                       /* frame: 289 */
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+}
+.nh-logo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+}
+
+/* ---- Mobile nav (Figma 1587-7457) — hidden on desktop ------------- */
+.nh-mnav { display: none; }
+
+/* ===================================================================
+   MOBILE HERO — "walking the line" (Figma 1715-7891, 393×852).
+   The same composition the desktop moved to, measured off the MOBILE
+   frame rather than scaled down from the 1440 one:
+
+     hairline (Line 77)   y 450  → 52.82% of the frame
+     rail words           y 462  → 12px under the line
+     figures (74 box)     y 389  → feet (82.7%) land on 450.2 = the line
+     paragraph (333 wide) y 633  → 183px under the line, centred
+     DNRMLZD cap→baseline y 755–813, x 16–377 → 39px of floor under it
+
+   Note the line is NOT on the frame's centre here (426); the mobile
+   frame drops it 24px, so this is a measured percentage, not `50%`.
+
+   Breakpoint is 767, not the 640 this block used to carry: every other
+   mobile layout on the site switches at 767, so between 641 and 767 the
+   hero was showing the desktop nav over the stacked mobile body.
+   =================================================================== */
+/* NB: this Webflow export scales the root font-size with the viewport (1.111vw),
+   so 1rem ≈ 4px at 393px wide — the mobile hero uses fixed px, not rem. */
+@media (max-width: 767px) {
+  .nh-nav-fixed { display: none; }   /* desktop links + right rail off */
+
+  /* [Menu] · [Start Work] (Figma 1715-7891) — replaces the old logo/contact/Menu
+     row; the drawer (js/mobile-menu.js) still hangs off .nh-mnav-menu. */
+  .nh-mnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 32px 16px 0;
+    color: #000;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    line-height: 0.92;
+  }
+  .nh-mnav-menu {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    line-height: inherit;
+    cursor: pointer;
+  }
+  .nh-mnav-work { color: inherit; text-decoration: none; }
+
+  /* The stack is gone: the logo area becomes the full-bleed layer the three
+     free-standing pieces (figures, rail, paragraph) are positioned inside, and
+     .nh-hero-bottom keeps only the wordmark, pinned to the floor. */
+  .nh-logo-area {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;      /* covers the wordmark; only its children take clicks */
+  }
+  .nh-hero-bottom {
+    margin-top: auto;          /* .nh-logo-area no longer spaces it */
+    /* Figma: baseline 39px off the floor. The floor is the section's own bottom
+       and the section is 100svh, which on iOS ends above the floating toolbar
+       (verified on an iPhone 17 Pro: 718pt of small viewport on an 874pt
+       screen), so these 39 are 39 the phone actually shows — WV-48. */
+    padding: 0 16px 39px;
+  }
+
+  /* DNRMLZD has no descenders, so the frame measures its floor from the
+     BASELINE. The h1's line box, though, runs ~0.085em past the baseline (the
+     strut's own descent), which quietly spent 7 of the 39. line-height:0
+     collapses the strut, so the box is exactly the cap-height slot and its
+     bottom IS the baseline — the padding then measures what the frame measures.
+     Mobile-only: the desktop floor is already signed off against its own box. */
+  .nh-wordmark { line-height: 0; }
+
+  .nh-hero-rail {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    top: calc(52.82% - var(--nh-lift, 0px));
+    margin: 0;
+    padding: 12px 0 0;         /* frame: words' line box 12px under the line */
+    border-top: 1px solid currentColor;
+    border-bottom: 0;
+  }
+
+  /* Same alignment trick as desktop: the artwork's feet sit at 82.7% of its own
+     frame, so the box is pulled up by the FOOT fraction — half the box would
+     float the figures 12px above the line. */
+  .nh-logo {
+    --nh-foot: 0.827;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(52.82% - var(--nh-lift, 0px));
+    width: 74px;               /* frame: 74 at 393 */
+    margin: calc(var(--nh-foot) * -74px) auto 0;
+    pointer-events: auto;
+  }
+
+  .nh-hero-para {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(52.82% + 183px - var(--nh-lift, 0px));   /* frame: y633 */
+    width: min(333px, calc(100% - 32px));              /* frame: 333, centred */
+    max-width: none;
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+}
+
+/* ---- Teaser reel (fixed, WebGL cloth) ----------------------------- */
+.nh-reel-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  padding: 0 0 1.5rem var(--nh-gutter);
+  pointer-events: none;
+}
+
+.nh-reel-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.nh-reel {
+  position: relative;
+  width: 14rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.nh-reel canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.18);
+}
+
+.nh-reel video {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.nh-reel-tag {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding-bottom: 0.25rem;
+}
+
+/* Mute label that follows the pointer inside the reel (desktop only) */
+.nh-reel-mute {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 0;
+  background: #111;
+  color: #fff;
+  font: 400 10px/1.1 system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  pointer-events: none;
+  user-select: none;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+@media (pointer: fine) {
+  .nh-reel:hover .nh-reel-mute { opacity: 0.95; }
+}
+@media (pointer: coarse) {
+  .nh-reel-mute {
+    left: 50%;
+    bottom: 8px;
+    top: auto;
+    transform: translateX(-50%);
+    opacity: 0.95;
+  }
+}
+
+/* Scroll spacer that drives the reel expand + fold */
+#nh-reel-spacer {
+  position: relative;
+  height: 120vh;
+}
+
+/* ---- A11y --------------------------------------------------------- */
+.nh-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* animation:none as well as opacity — a running animation outranks a plain
+     declaration, so opacity:1 alone would still let the reveal play. It used to
+     be enough only because the JS branch never started the tween. */
+  .nh-hero-para { opacity: 1; animation: none; }
+}
+
+/* ============================================================
+   Dossier document — #about-section (Figma 1613-7413).
+   A redacted paper page that "lands on the table" on scroll.
+   ============================================================ */
+.dn-dossier {
+  position: relative;
+  z-index: 2;
+  /* Pulled up (margin set by cases-new.js from the pin geometry) so the doc PINS
+     at the reveal-start and sits behind the cases' last screen; the cases pin
+     (z 4) then lifts off it while the document rotates in. */
+  /* BLACK table (editorialnew): the white paper reads as a sheet on it. The paper
+     starts a centred miniature and scales up + rotates in (dossier.js), stopping
+     short of the edges so black table shows on the sides. */
+  background: #000;
+  color: #000;
+  overflow: visible;                       /* don't clip the tilted sheet at the section
+                                             box — that hard rectangular cut is the paper
+                                             getting chopped as it leans past its bounds */
+  /* perspective lives on the sheet itself (dossier.js transformPerspective) so it
+     applies to the sheet's own rotateX — an ancestor perspective would be flat-
+     tened by .container and do nothing. */
+}
+/* Kill the Webflow .section.is-cursor min-height (230rem ≈ 4 screens of empty
+   scroll, left over from the old layout). The 200vh sheet defines the height.
+   Also beat the Webflow overflow:clip (it chops the tilted sheet at the box). */
+.section.is-cursor.dn-dossier { min-height: 0; overflow: visible; }
+.dn-dossier .text-body::before {            /* paper grain — ON the sheet (no blend: perf) */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+.dn-dossier .container { max-width: none; width: 100%; padding: 0; display: block; }
+/* The sheet is exactly 200vh; elements are placed at their Figma positions:
+   top = figma_y / 9.26 (vh), left/width = figma_x / 14.4 (%). Frame 1440×1852. */
+.dn-dossier .text-body {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 200vh;
+  padding: 0;
+  background: #fff;                        /* the paper sheet — pure white on the black table */
+  transform-origin: 50% 0%;
+  will-change: transform;
+  backface-visibility: hidden;
+  font-family: var(--dn-font-sans);
+  font-weight: 500;
+  color: #000;
+}
+.dn-doc-s1, .dn-doc-s2 { display: contents; }   /* children position against .text-body */
+
+/* header row (Figma top 32) */
+.dn-doc-head {
+  position: absolute; top: 3.5vh; left: 0; width: 100%; z-index: 3;
+  font-size: 18px; line-height: 0.9;                 /* same size as legend + grid */
+}
+.dn-doc-head span { position: absolute; top: 0; white-space: nowrap; }
+.dn-doc-tag { left: 2.5%; }
+.dn-doc-mid { left: 38.4%; }
+.dn-doc-page { right: 2.22%; }
+
+/* heading — right block (Figma top 115, left 553, w797, 72px) */
+.dn-doc-heading {
+  position: absolute; top: 12.4vh; left: 38.4%; width: 55.3%; margin: 0; z-index: 2;
+  font-size: clamp(2rem, 5vw, 5rem); line-height: 1; letter-spacing: -0.02em;
+  font-weight: 500;                                  /* WV-24: medium */
+}
+
+/* strategy legend — left gutter, full-width top rule (Figma rule 309, rows 315–415) */
+.dn-legend {
+  position: absolute; top: 33.4vh; left: 2.5%; width: 35.9%; z-index: 2;
+  font-size: 18px; line-height: 0.9;
+}
+.dn-legend::before {                          /* full-width rule out to the right margin */
+  content: ""; position: absolute; top: -1px; left: 0; width: 265%; border-top: 1px solid #000;
+}
+.dn-leg-row {
+  display: grid; grid-template-columns: 44% 1fr auto; align-items: center; gap: 0.5rem;
+  padding: 5px 0; border-bottom: 1px solid #000;
+  /* rows are <button>s (clickable) — strip the native chrome */
+  width: 100%; margin: 0; appearance: none; -webkit-appearance: none;
+  background: none; border-top: 0; border-left: 0; border-right: 0;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.dn-leg-label { display: inline-block; white-space: nowrap; opacity: 0.5; transition: opacity 0.18s ease; }
+.dn-leg-row:hover .dn-leg-label { opacity: 0.85; }
+.dn-leg-row.is-active .dn-leg-label { opacity: 1; }
+/* bottom-up letter roll on hover: each letter is a tight window over two stacked
+   copies of itself; on hover the pair slides up one line so a fresh copy rolls
+   in, staggered left→right. The window is exactly one line tall — the lower copy
+   stays fully clipped in the idle state (no ghost showing through). */
+/* WV-15: window is 1.24em (not 1em) so glyph descenders (g, y, p) aren't clipped
+   by the mask; the two stacked copies are each 1.24em so only one still shows. */
+.dn-ltr { display: inline-block; overflow: hidden; height: 1.24em; line-height: 1.24;
+  vertical-align: bottom; }
+.dn-ltr-in { display: flex; flex-direction: column; will-change: transform;
+  transition: transform 0.42s cubic-bezier(0.65, 0, 0.35, 1);
+  transition-delay: calc(var(--i) * 14ms); }
+.dn-ltr-in > span { display: block; height: 1.24em; line-height: 1.24; }
+.dn-leg-row:hover .dn-ltr-in { transform: translateY(-1.24em); }
+@media (prefers-reduced-motion: reduce) { .dn-ltr-in { transition: none; } }
+/* dot marks the active row only */
+.dn-leg-dot { width: 6px; height: 6px; border-radius: 50%; background: #000; opacity: 0; }
+.dn-leg-row.is-active .dn-leg-dot { opacity: 1; }
+
+/* deliverables grid (Figma rows 561/703, left 263, w1145, cells 190×143) */
+.dn-grid {
+  position: absolute; top: 60.6vh; left: 18.26%; width: 79.52%; z-index: 2;
+  display: grid; grid-template-columns: repeat(6, 1fr);
+}
+.dn-cell {
+  border: 1px solid #000; margin: 0 -1px -1px 0;   /* collapse shared borders */
+  aspect-ratio: 190 / 143;
+  padding: 5px 7px 6px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  font-size: 18px; line-height: 0.9;
+}
+
+/* redacted paragraph — screen 2 (Figma top 1093, full width, indent 518) */
+.dn-dossier .text-overlay-block {
+  position: absolute; top: 118vh; left: 2.5%; right: 2.22%; z-index: 2; margin: 0; color: #000;
+}
+.dn-secure.js-fill-text {
+  /* WV-61 — left, not justified. Justification stretched the word spacing of a
+     paragraph that is already being fitted by JS, so the rivers between words
+     moved every time the fit changed. The 36% first-line indent is the design
+     and stays; only the ragged right comes back. */
+  text-align: left;
+  text-indent: 36%;
+  letter-spacing: -0.02em;
+}
+
+/* Dossier — MOBILE (Figma 1658-17244): a plain WHITE document, stacked in normal
+   flow. No black table, no rotation (dossier.js skips the pin at <=767). */
+@media (max-width: 767px) {
+  /* -1px so the white doc overlaps the white cases above it — kills the hairline
+     seam the two flush sections render at a sub-pixel boundary. */
+  .dn-dossier, .section.is-cursor.dn-dossier { background: #fff; min-height: 0; margin-top: -1px; }
+  .dn-dossier .text-body {
+    position: static; transform: none !important; width: 100%; min-height: auto;
+    padding: 22px 12px 44px; display: flex; flex-direction: column; color: #000;
+  }
+  .dn-dossier .text-body::before { display: none; }   /* drop the paper grain */
+
+  .dn-doc-s1, .dn-doc-s2 { display: block; position: static; }
+
+  .dn-doc-head {
+    position: static; width: 100%; display: flex; justify-content: space-between;
+    gap: 8px; font: 400 13px/1 var(--dn-font-sans); margin-bottom: 34px;
+  }
+  .dn-doc-head span { position: static; }
+  .dn-doc-mid { display: none; }
+
+  /* WV-50. The two indented blocks on this screen — this heading and the
+     redacted paragraph below the grid — each started at a number of their own
+     (22% and a 2.5em text-indent, i.e. 93 and 80 on a 393 screen) and so lined
+     up with each other, with the legend, and with nothing else. Both now start
+     on the legend's OWN content column: 30% of the sheet plus the row's 0.5rem
+     gap, the vertical that "Strategy & Research" already stands on. */
+  .dn-doc-heading {
+    position: static; left: auto; width: auto;
+    margin: 0 0 24px calc(30% + 0.5rem);
+    font: 500 26px/1.06 var(--dn-font-sans); letter-spacing: -0.01em;   /* WV-24: medium */
+  }
+
+  .dn-legend { position: static; width: 100%; margin: 0 0 30px; font-size: 14px; }
+  .dn-legend::before { width: 100%; }
+  .dn-leg-row { grid-template-columns: 30% 1fr auto; padding: 7px 0; font-size: 14px; }
+
+  /* grid: shift left 1px + drop the first column's left padding so the cell TITLES
+     line up on the same vertical as the header / legend (all at the 12px margin). */
+  .dn-grid {
+    position: static; grid-template-columns: repeat(3, 1fr); margin: 0 0 32px -1px;
+    width: calc(100% + 1px);
+  }
+  .dn-cell { min-height: 92px; aspect-ratio: auto; padding: 8px 6px; font-size: 14px; }
+  .dn-cell:nth-child(3n+1) { padding-left: 0; }
+
+  .dn-dossier .text-overlay-block { position: static; top: auto; left: auto; right: auto; }
+  .dn-secure.js-fill-text {
+    /* WV-42: ragged right, not justified — justification on a narrow column
+       opens rivers between the words. */
+    /* WV-50: the indent is the legend's content column, not 2.5 of its own ems
+       — see .dn-doc-heading above. Same expression so the two can't drift. */
+    text-indent: calc(30% + 0.5rem); text-align: left;
+    font-size: 27px; line-height: 1.3; letter-spacing: -0.02em;   /* WV-7: editorial size (~26-28) */
+  }
+}
+
+/* Fallback for no WebGL at all — NOT the mobile path. A phone runs the same ink
+   dissolve as a desktop (js/classified.js), tapped rather than hovered; these
+   flat bars only appear if the shader can't run, so the phrases still read as
+   classified and can still be opened. box-decoration-break gives multi-line
+   phrases a bar per line. */
+.dn-secure--static .dn-classified {
+  background: #0b0b0b; color: transparent;
+  border-radius: 2px; padding: 0 0.1em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+.dn-secure--static .dn-classified.is-open {
+  background: transparent;
+  color: inherit;
+}
+
+/* ===================== Founders section — Figma 1614-7193 =====================
+   Work Mode text + clock move to the TOP-RIGHT; the three principles become a
+   divided BOTTOM row (label · paragraph), all uppercase. Positions are the Figma
+   frame (1440×827) mapped into the section: x is relative to .founder-body (which
+   is the container's 1376px content — its left already sits at Figma's 32px
+   margin), y is a % of the 100vh section. Scoped to .blur-stiki-section only. */
+.blur-stiki-section .founder-body { position: relative; }
+.blur-stiki-section .found-up_block { position: static; display: block; }
+.blur-stiki-section .found-time-contant > .container { max-width: none; width: 100%; padding: 0; height: 100%; }
+
+/* Top-right: Work Mode block (uppercase, 12px / .92). Figma x1073 y34 w333. */
+.blur-stiki-section .time-body {
+  position: absolute; top: 4.1%; left: 75.65%; right: auto;
+  width: 24.2%; max-width: none; padding: 0; z-index: 4;
+}
+.blur-stiki-section .time-body .gap-so-little { grid-row-gap: 2px; align-items: flex-start; }
+.blur-stiki-section .time-body .text-small {
+  font-size: 14px; line-height: 1.05; text-transform: uppercase;   /* WV: clock 14px like the body */
+  display: block; overflow: visible;
+}
+.blur-stiki-section .time-body .null-gap.is-hor { display: flex; grid-column-gap: 4px; margin-top: 2px; }
+.blur-stiki-section .time-body .null-gap.is-hor .text-small:last-child { opacity: 0.4; }
+
+/* Clock, just below the work-mode text. Figma x1073 y107, 81px box. */
+.blur-stiki-section .clock-block {
+  position: absolute; top: 12.94%; left: 75.65%; z-index: 4;
+  /* keep align-items:center (Webflow default) — the time sits centered in the
+     tick frame; flex-start shoved it to the left edge (the clock "bug"). */
+}
+.blur-stiki-section .clock-block .text-small { font-size: 14px; line-height: 1.2; }
+
+/* Principles → divided bottom row. Divider (Figma y485) is each item's top border;
+   text (y500) sits below. 3 columns at Figma x32 / x553 / x1073. */
+.blur-stiki-section .founder-contant {
+  position: absolute; left: 0; right: 0; top: 58.6%; height: auto;
+  display: block; padding: 0; align-items: stretch; z-index: 4;
+}
+.blur-stiki-section .founder-contant-item {
+  position: absolute; top: 0; width: 24.35%;
+  grid-column-gap: 0; align-items: flex-start;
+  border-top: 1px solid rgba(255, 255, 255, 0.35); padding-top: 0.85rem;
+}
+.blur-stiki-section .founder-contant-item:nth-child(1) { left: 0; }
+.blur-stiki-section .founder-contant-item:nth-child(2) { left: 37.86%; }
+.blur-stiki-section .founder-contant-item:nth-child(3) { left: 75.65%; }
+.blur-stiki-section .founder-contant-item > .text-small {   /* the label */
+  width: 43%; flex: none; font-size: 14px; line-height: 1.05;   /* WV: 12->14; widened so [Craftsmanship] fits at 14px */
+  text-transform: uppercase; display: block; overflow: visible;
+}
+.blur-stiki-section .found-text_max {                        /* the paragraph column */
+  min-width: 0; max-width: none; width: 57%;
+}
+.blur-stiki-section .found-text_max .text-small {
+  font-size: 14px; line-height: 1.16; text-transform: none;   /* body copy — 14px like the rest (WV-12) */
+  display: block; overflow: visible;
+}
+
+/* Names row pinned to the bottom (Figma y724). */
+.blur-stiki-section .founder-hed_block {
+  position: absolute; left: 0; right: 0; bottom: 3.87%; z-index: 4;
+}
+
+/* Photo is full-bleed — break it out of the container's side padding (it was
+   inset to the 1376 content, leaving dark strips at the viewport edges). */
+.blur-stiki-section .found-abs-image_wrap {
+  left: 50%; right: auto; width: 100vw; transform: translateX(-50%);
+}
+/* Fade the photo's TOP edge into black so it blends out of the dossier section
+   above it (no hard seam). Over the image, under the clock/text (a sibling). */
+.blur-stiki-section .found-abs-image_wrap::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40vh;
+  background: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 42%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none; z-index: 2;
+}
+
+/* Clearance tail between the founders and the process section: keeps the process
+   section's raised (-50vh) blur buffer from reaching up over ROMAN & SAM at rest.
+   Dark (#161616) so it reads as continuous with the founders + process. */
+.blur-stiki-section .dn-founders-tail { height: 60vh; background: #161616; }
+
+/* ---- Founders — MOBILE (WV-53, Figma 1195-6941 redrawn: 375×679) ----------
+   Measured off the frame:
+
+     clock            x16  y16   81 box  (21.6vw — 81 of 375, so it stays a ratio)
+     Work Mode block  x122 y16   w243    → BESIDE the clock, 25 clear of it
+     rule             x12  y386  w351    #d9d9d9 at 30%
+     [LABEL] · body   x12 / x144 y401    12px/0.92 MEDIUM, uppercase, body w219
+     ← →              x12  y430  24px each, 5 apart
+     ROMAN & SAM      x16  y573  50px/0.9, packed left with 5px gaps
+
+   Vertical anchoring is from the BOTTOM (names 61 off the floor, the principle
+   row 223), not proportional: 679 is a drawing height, and what the frame is
+   actually fixing is that the names have a floor to stand on — WV-51 was them
+   walking off the bottom of a real 852pt screen. */
+@media (max-width: 767px) {
+  /* WV-48 / WV-51. The export pins this section at 100vh, which on iOS is the
+     LARGE viewport — it runs on underneath Safari's floating toolbar, so the
+     61px of floor the frame gives ROMAN & SAM was 61px of a bottom edge the
+     phone never shows. Measured on an iPhone 17 Pro (874pt screen, iOS 26.5):
+     the page gets 718pt of small viewport, and the toolbar sits in the 101pt
+     below it — so svh is the one that ends where the visible page ends. The
+     hero has always used it; this section had not caught up. */
+  .blur-stiki-section .section.is-test { height: 100svh; }
+
+  /* The container's own side padding used to shift every Figma x by ~12.6px,
+     so "left:16" was really 28.6 from the screen edge. Drop it and the frame's
+     numbers land where the frame puts them. */
+  .blur-stiki-section .container { max-width: none; width: 100%; padding-left: 0; padding-right: 0; }
+
+  /* clock → top-left */
+  .blur-stiki-section .clock-block { top: 16px; left: 16px; right: auto; }
+  .blur-stiki-section .clock-block .text-small { font-size: 14px; line-height: 1.2; }
+
+  /* mode copy → the clock's right, top-aligned with it. The left edge is written
+     as gutter + clock + gap so it tracks the clock, which is sized in vw. */
+  .blur-stiki-section .time-body {
+    top: 16px; left: calc(16px + 21.6vw + 25px); right: 16px;
+    width: auto; max-width: none; padding-top: 0;
+  }
+  .blur-stiki-section .time-body .text-small { text-transform: none; font-size: 14px; line-height: 1.2; }
+  .blur-stiki-section .time-body .null-gap.is-hor { margin-top: 2px; }   /* frame: 2, same as the rows above */
+
+  /* principles → one at a time; [label] left + body right, arrows under the label */
+  .blur-stiki-section .founder-contant { top: auto; bottom: 223px; left: 12px; right: 12px; display: block; }
+  .blur-stiki-section .founder-contant-item {
+    position: static; width: auto; display: none;
+    /* Body column starts at the frame's 38.4vw (144 of 375); the row itself is
+       inset 12, so the label column is that minus the inset. Written in vw so
+       the split holds its proportion on a 393 or 430 screen instead of handing
+       every extra pixel to the body. */
+    grid-template-columns: calc(38.4vw - 12px) 1fr;
+    column-gap: 0; row-gap: 0;
+    padding-top: 14px;                                   /* frame: rule 386 → text 401 */
+    border-top-color: rgba(217, 217, 217, 0.3);          /* frame: #d9d9d9 at 30% */
+  }
+  .blur-stiki-section .founder-contant-item.is-active { display: grid; }
+  /* 12px/0.92 uppercase for BOTH columns (the frame's redraw). At the old 14px
+     the label column overflowed into the body — that was WV-52. */
+  .blur-stiki-section .founder-contant-item > .text-small {
+    grid-column: 1; grid-row: 1; width: auto;
+    font-size: 12px; line-height: 0.92; text-transform: uppercase;
+  }
+  .blur-stiki-section .found-text_max { grid-column: 2; grid-row: 1 / 3; width: auto; }
+  .blur-stiki-section .found-text_max .text-small {
+    font-size: 12px; line-height: 0.92; text-transform: uppercase;
+  }
+  .dn-found-arrows { grid-column: 1; grid-row: 2; display: flex; gap: 5px; margin-top: 18px; align-self: start; }
+  .dn-found-arrow {
+    position: relative;
+    width: 24px; height: 24px; padding: 0; border: 0; background: none; color: #fff; cursor: pointer;
+  }
+  /* The frame's 24px glyphs sit 5px apart, which is a 24pt tap target. Grow the
+     hit area to 44 without moving the arrow. */
+  .dn-found-arrow::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 44px; height: 44px; transform: translate(-50%, -50%);
+  }
+  .dn-found-arrow svg { display: block; width: 100%; height: 100%; }
+
+  /* ROMAN & SAM → one row packed to the left gutter, standing on the frame's
+     61px of floor. They used to be a space-between row whose columns carried a
+     min-width, which wrapped SAM onto a second line and pushed it off-screen. */
+  .blur-stiki-section .founder-hed_block {
+    left: 16px; right: 16px; bottom: 61px;
+    /* the export turns this row into a column below 768 — that, plus the
+       columns' min-width, is what put SAM on its own line */
+    flex-flow: row nowrap;
+    justify-content: flex-start; align-items: baseline; gap: 5px;
+  }
+  .blur-stiki-section .founder-hed_block .max-text-block { min-width: 0; width: auto; }
+  .blur-stiki-section .founder-hed_block .is-abs-mob { position: static; left: auto; top: auto; }
+  .blur-stiki-section .founder-hed_block .hed-3 { line-height: 0.9; }   /* frame: 50/0.9 */
+}
+
+/* Process step labels are clickable anchors (jump to that card). Hover feedback
+   (hovered white, others muted to 50%) is handled in JS via opacity, since that
+   opacity is GSAP-driven. */
+.stiki-section .tabs-item { cursor: pointer; }
+
+/* ================= Homepage cases — Figma 1195-6657 =================
+   Pinned, scroll-driven. Light/white. Positions map the 1440×890 frame into
+   the 100vh pin (x = figma_x/1440, y = figma_y/890). */
+/* z 4 so the white cases paints ABOVE the black dossier (z 2) during the reveal:
+   the dossier is pulled up 100vh to sit behind the cases' last screen, and the
+   pin then slides up (cases-new.js) to uncover it. */
+/* The white lives on the PIN, not the section — so once the pin slides up the
+   section box is transparent and the black dossier (z 2) shows through it. */
+.dn-cases { position: relative; z-index: 4; color: #101010; }
+.dn-cases-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; will-change: transform; }
+
+/* case list — top-right (Figma x321 y56 w1087). Rows: 42px name + divider. */
+.dn-cases-list {
+  /* WV-16: left edge shares the dossier's rule-line column below (~33.4%) so the
+     two sections align. Description/services stay in the far-left gutter. */
+  position: absolute; left: 33.4%; top: 6.3%; width: 64.3%;
+  list-style: none; margin: 0; padding: 0;
+}
+.dn-case-row { position: relative; padding-bottom: 16px; }
+.dn-case-row::after {            /* divider 8px below the name (Figma lines) */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px;
+  background: rgba(0, 0, 0, 0.14);
+}
+.dn-case-link { display: block; text-decoration: none; color: inherit; }
+.dn-case-name, .dn-case-fill {
+  font-family: var(--dn-font-sans); font-weight: 500; font-size: 42px;
+  line-height: 0.9; white-space: nowrap; display: block;
+}
+.dn-case-name { color: rgba(16, 16, 16, 0.4); transition: color 0.25s ease; }  /* inactive/dim */
+.dn-case-row.is-active .dn-case-name { color: #101010; } /* active — solid */
+/* Hover feedback on the name links — they were dead-grey with no response. */
+.dn-case-row:not(.is-active):hover .dn-case-name { color: rgba(16, 16, 16, 0.75); }
+/* black fill = a copy of the word, clipped from the right (JS drives the inset).
+   Sized to the WORD itself (shrink-to-content), so 0→100% fills exactly the word. */
+.dn-case-fill {
+  position: absolute; left: 0; top: 0; width: max-content; color: #101010;
+  pointer-events: none; clip-path: inset(0px 100% 0px 0px);
+}
+
+/* WV-10: description + services SWAPPED (services now top, description bottom) and
+   unified to 14px — the services were 18px (read as more important) yet sat lower.
+   overflow-hidden masks the reveal slide-up; padding-bottom gives descenders room
+   so the mask doesn't clip glyph tails (WV-15). */
+.dn-cases-services {
+  position: absolute; left: 2.22%; top: 37.98%; width: 12%; overflow: hidden;
+  font: 500 14px/1.3 var(--dn-font-sans); color: #000;
+  padding-bottom: 0.18em;
+}
+.dn-cases-desc {
+  position: absolute; left: 2.22%; top: auto; bottom: 4.6%; width: 18%; margin: 0; overflow: hidden;
+  font: 400 14px/1.3 var(--dn-font-sans); color: #101010;
+  padding-bottom: 0.18em;
+}
+.dn-reveal-inner { display: block; will-change: transform; }
+/* cover video — bottom-right (Figma x318 y338 w1090 h545) */
+.dn-cases-cover {
+  position: absolute; left: 33.4%; top: 37.98%; width: 64.3%; height: 61.24%;
+  overflow: hidden; background: #000;
+}
+.dn-case-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0;   /* revealed via clip-path on activate (JS) */
+}
+
+/* ===== Cases — MOBILE (Figma 1195-6840) ======================================
+   Plain vertical stack, no pin/reveal. cover · name+services · divider · desc.
+   Built by buildMobile() in cases-new.js; the pin becomes a static column. */
+@media (max-width: 767px) {
+  .dn-cases.is-mobile { height: auto !important; background: #fff; z-index: auto; }
+  .dn-cases.is-mobile .dn-cases-pin {
+    position: static; height: auto; overflow: visible; transform: none;
+    background: #fff; padding: 82px 12px 64px;
+  }
+  .dn-mhead {
+    font: 500 14px/1.1 var(--dn-font-sans); letter-spacing: 0.01em;
+    color: #101010; margin-bottom: 46px;
+  }
+  .dn-mcase { display: block; text-decoration: none; color: inherit; margin-bottom: 74px; }
+  .dn-mcase:last-child { margin-bottom: 0; }
+  .dn-mcover {
+    position: relative; aspect-ratio: 351 / 176;   /* square corners — no rounding */
+    overflow: hidden; background: #000;
+  }
+  .dn-mcover video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .dn-mmeta { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-top: 14px; }
+  .dn-mname { font: 500 22px/1 var(--dn-font-sans); color: #101010; }
+  .dn-mserv { flex: 0 1 auto; max-width: 44%; text-align: right; font: 400 14px/1.3 var(--dn-font-sans); color: #101010; }
+  .dn-mdesc {
+    margin: 23px 0 0; padding-top: 22px; border-top: 1px solid rgba(16, 16, 16, 0.25);
+    font: 400 14px/1.4 var(--dn-font-sans); color: #101010;
+  }
+}
+
+/* Cookie consent banner → bottom-RIGHT of the hero (was centred). Finsweet
+   controls its visibility (shows until the visitor accepts/denies). */
+/* WV-22: repositioned to bottom-right, which made the pill shrink-to-fit, so
+   space-between had no room and the label + buttons jammed together. A fixed gap
+   spaces them regardless of width; a touch more horizontal padding too. */
+.cookie-block { left: auto; right: 1.5rem; margin: 0; gap: 1.25rem; padding: 0.8rem 1.35rem; }
+.cookie-block .is-link { white-space: nowrap; }
+
+
+
+/* WV: the insights ("We write sometimes") head was double-indented — .slider-body
+   AND its inner .container each add a 27px gutter, landing the title/description at
+   54px while the rest of the page's far-left content sits at one 27px gutter. Drop
+   the inner container gutter so it lines up with cases / founders / footer. */
+#insight-section .slider-hed-contant .container { padding-left: 0; }
+
+/* WV: unify small type — the Webflow small-label class was 12px on desktop; bump
+   to 14px to match body. Desktop-scoped (mobile already renders ~14px via its own
+   vw rule, so we leave it). Nav annotations get 14px so they match the nav links. */
+@media (min-width: 768px) { .text-small { font-size: 14px; } }
+.nh-nav-annot { font-size: 14px; }
+/* WV-31: the newsletter input + Subscribe button used .875rem, which resolves to
+   ~18px against this site's fluid 1.111vw root — bigger than the 14px body/label
+   beside them. Pin them to 14px on desktop to match, like .text-small above. */
+@media (min-width: 768px) { .text-field, .sbmt-btn { font-size: 14px; } }
+
+/* The mobile menu drawer moved to css/mobile-menu.css — the contact page
+   needs the same overlay (WV-43) and could not take all of hero.css. */
+
+
+/* ===== Insights — vinyl record slides out of the cover on hover (Figma 1652-17016) */
+/* Mobile: size to the viewport. The site's fluid rem collapses to ~4px here, so
+   the desktop 24.6rem became a ~100px cover (WV-8, "too small"). Desktop keeps the
+   80% rem sizing — smaller sleeve leaves room for the hover record + click fly-out. */
+.dn-cover-wrap { position: relative; width: min(76vw, 340px); height: min(76vw, 340px); flex: none; }
+@media (min-width: 768px) {
+  .dn-cover-wrap { width: 24.6rem; height: 24.6rem; }
+}
+/* WV-44: the record slides out on hover, which a touch screen never fires — so
+   on a phone it only ever showed as a disc stuck behind the sleeve. Hidden
+   there; the cover art is the whole card on mobile. */
+@media (hover: none), (max-width: 767px) {
+  .dn-vinyl { display: none; }
+}
+.dn-cover-wrap .blog-image_contant {
+  position: relative; z-index: 2; width: 100%; height: 100%;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dn-vinyl {
+  position: absolute; top: 4%; left: 4%; width: 92%; height: 92%; z-index: 1;
+  pointer-events: none; will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dn-vinyl-disc {
+  width: 100%; height: 100%; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255,255,255,0.10), transparent 55%),
+    repeating-radial-gradient(circle at 50% 50%, #0d0d0d 0 1.5px, #1c1c1c 1.5px 3px);
+  /* WV-36: no spin and no drop shadow — the record slides out of the sleeve and
+     that is the whole move. The inset stays: it is the disc's own shading, not a
+     shadow it casts. */
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.7);
+}
+.dn-vinyl-label {
+  width: 32%; height: 32%; border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #0a0a0a 0 8%, #e72b25 9% 100%);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3);
+}
+/* WV-63: gated to exactly where the record EXISTS — the inverse of the hide
+   rule above. WV-44 hid the disc on touch but left these two transforms open to
+   every pointer, and a touch screen fires :hover on a swipe. So on a phone the
+   sleeve still slid aside to reveal the thing that had just been display:none'd,
+   and slid back. Same trap at a narrow desktop window, where the disc is hidden
+   by max-width but a real mouse can still hover. */
+@media (hover: hover) and (min-width: 768px) {
+  .is-abs-blog:hover .dn-vinyl { transform: translateX(40%); }
+  .is-abs-blog:hover .blog-image_contant { transform: translateX(-6%); }
+}
