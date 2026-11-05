@@ -47,7 +47,7 @@
     });
     html +=
       "</nav>" +
-      '<a class="nh-mdrawer-cta" href="/contact">' +
+      '<a class="nh-mdrawer-cta" href="contact/">' +
         '<span class="nh-mdrawer-cta-line">Work with us</span>' +
         '<span class="nh-mdrawer-cta-meta">' +
           '<span>2 openings</span>' +
