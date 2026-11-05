@@ -41,4 +41,5 @@ Visual clone of https://denormalized.co/ with Dutch FilmForge content.
 - Logo slot: Denormalized motion figures kept for visual fidelity; wordmark = FilmForge; favicons = FilmForge
 
 ## Deploy target
-GitHub Pages: `BasBartClub/denormalized-filmforge-preview`
+GitHub Pages: https://basbartclub.github.io/denormalized-filmforge-preview/
+Repo: `BasBartClub/denormalized-filmforge-preview`
